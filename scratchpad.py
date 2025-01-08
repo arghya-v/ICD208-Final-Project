@@ -18,7 +18,7 @@ pygame.display.set_caption("Scaled Spritesheet Animation")
 clock = pygame.time.Clock()
 
 # Load the spritesheet
-original_spritesheet = pygame.image.load("assets/npc3.png").convert_alpha()
+original_spritesheet = pygame.image.load("assets/1.png").convert_alpha()
 
 # Ensure scaled sheet has enough space for all frames and directions
 scaled_width = TARGET_FRAME_WIDTH * NUM_FRAMES
