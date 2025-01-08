@@ -18,7 +18,7 @@ pygame.display.set_caption("Scaled Spritesheet Animation")
 clock = pygame.time.Clock()
 
 # Load the spritesheet
-original_spritesheet = pygame.image.load("assets/1.png").convert_alpha()
+original_spritesheet = pygame.image.load("assets/characters/2.png").convert_alpha()
 
 # Ensure scaled sheet has enough space for all frames and directions
 scaled_width = TARGET_FRAME_WIDTH * NUM_FRAMES
@@ -57,16 +57,16 @@ while running:
 
     # Handle movement input
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_RIGHT]:
+    if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
         x += SPEED
         direction = 1  # RIGHT
-    elif keys[pygame.K_LEFT]:
+    elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
         x -= SPEED
         direction = 3  # LEFT
-    elif keys[pygame.K_UP]:
+    elif keys[pygame.K_UP] or keys[pygame.K_w]:
         y -= SPEED
         direction = 2  # UP
-    elif keys[pygame.K_DOWN]:
+    elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
         y += SPEED
         direction = 0  # DOWN
     
