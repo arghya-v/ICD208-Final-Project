@@ -3,6 +3,8 @@ from pygame.locals import QUIT
 
 pygame.init()
 
+room = "start"
+
 # Screen dimensions and frame rate
 SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
 pygame.display.set_caption("Escape The Algorithm")
@@ -34,45 +36,46 @@ running = True
 while running:
     screen.fill((0, 0, 0))  # Clear screen
     
-    # Draw background
-    screen.blit(background, (0, 0))
-    screen.blit(background, (400, 0))
-    screen.blit(background, (0, 300))
-    screen.blit(background, (400, 300))
+    if room == "start":
+        # Draw background
+        screen.blit(background, (0, 0))
+        screen.blit(background, (400, 0))
+        screen.blit(background, (0, 300))
+        screen.blit(background, (400, 300))
 
-    # Get mouse position
-    mouse_pos = pygame.mouse.get_pos()
+        # Get mouse position
+        mouse_pos = pygame.mouse.get_pos()
 
-    # Draw sprite and update frame
-    door_pos = (300, 600-door_sheet.get_height())  # Position where the sprite is drawn
-    crop_rect = pygame.Rect(door_pos, (door_sheet.get_width() // NUM_FRAMES, door_sheet.get_height()))
+        # Draw sprite and update frame
+        door_pos = (300, 600-door_sheet.get_height())  # Position where the sprite is drawn
+        crop_rect = pygame.Rect(door_pos, (door_sheet.get_width() // NUM_FRAMES, door_sheet.get_height()))
 
-    if crop_rect.collidepoint(mouse_pos):
-        # Hovering: Animate forward
-        frame_timer += clock.get_time()
-        if frame_timer > FRAME_RATE:
-            frame_timer = 0
-            if frame_index < NUM_FRAMES - 1:
-                frame_index += 1
-    else:
-        # Not hovering: Animate backward
-        frame_timer += clock.get_time()
-        if frame_timer > FRAME_RATE:
-            frame_timer = 0
-            if frame_index > 0:
-                frame_index -= 1
+        if crop_rect.collidepoint(mouse_pos):
+            # Hovering: Animate forward
+            frame_timer += clock.get_time()
+            if frame_timer > FRAME_RATE:
+                frame_timer = 0
+                if frame_index < NUM_FRAMES - 1:
+                    frame_index += 1
+        else:
+            # Not hovering: Animate backward
+            frame_timer += clock.get_time()
+            if frame_timer > FRAME_RATE:
+                frame_timer = 0
+                if frame_index > 0:
+                    frame_index -= 1
 
-    # Blit the current frame of the sprite
-    screen.blit(crop(door_sheet, frame_index), door_pos)
+        # Blit the current frame of the sprite
+        screen.blit(crop(door_sheet, frame_index), door_pos)
 
-    # Handle events
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            running = False
+        # Handle events
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                running = False
 
-    # Update display and tick clock
-    pygame.display.flip()
-    clock.tick(30)
+        # Update display and tick clock
+        pygame.display.flip()
+        clock.tick(30)
 
 pygame.quit()
 sys.exit()
