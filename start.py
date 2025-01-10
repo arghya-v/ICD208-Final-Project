@@ -50,8 +50,8 @@ while running:
 
         # Draw sprite and update frame
         door_pos = (300, 600-door_sheet.get_height())  # Position where the sprite is drawn
-        crop_rect = pygame.Rect(door_pos, (door_sheet.get_width() // NUM_FRAMES, door_sheet.get_height()))
-
+        crop_rect = pygame.Rect((door_pos[0]+25, door_pos[1]+55), ((door_sheet.get_width() // NUM_FRAMES)-57, door_sheet.get_height()-60))
+        
         if crop_rect.collidepoint(mouse_pos):
             # Hovering: Animate forward
             frame_timer += clock.get_time()
@@ -71,7 +71,9 @@ while running:
             room = "work cited"
 
         # Blit the current frame of the sprite
+        pygame.draw.rect(screen, (0, 0, 0), (crop_rect.x, crop_rect.y, crop_rect.width, crop_rect.height), 0)
         screen.blit(crop(door_sheet, frame_index), door_pos)
+        
 
     elif room == "work cited":
         screen.fill((255, 0, 0))
@@ -79,7 +81,6 @@ while running:
         if pygame.event.get(pygame.MOUSEBUTTONDOWN):
             room = "start"
     
-
     # Handle events
     for event in pygame.event.get():
         if event.type == QUIT:
