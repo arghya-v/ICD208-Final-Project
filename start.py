@@ -36,7 +36,9 @@ running = True
 while running:
     screen.fill((0, 0, 0))  # Clear screen
     
+
     if room == "start":
+        
         # Draw background
         screen.blit(background, (0, 0))
         screen.blit(background, (400, 0))
@@ -65,17 +67,27 @@ while running:
                 if frame_index > 0:
                     frame_index -= 1
 
+        if pygame.event.get(pygame.MOUSEBUTTONDOWN):
+            room = "work cited"
+
         # Blit the current frame of the sprite
         screen.blit(crop(door_sheet, frame_index), door_pos)
 
-        # Handle events
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                running = False
+    elif room == "work cited":
+        screen.fill((255, 0, 0))
 
-        # Update display and tick clock
-        pygame.display.flip()
-        clock.tick(30)
+        if pygame.event.get(pygame.MOUSEBUTTONDOWN):
+            room = "start"
+    
+
+    # Handle events
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            running = False
+
+    # Update display and tick clock
+    pygame.display.flip()
+    clock.tick(30)
 
 pygame.quit()
 sys.exit()
