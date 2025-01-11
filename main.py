@@ -14,7 +14,7 @@ start_frame_index = 0  # Current frame
 start_frame_timer = 0  # Timer for frame updates
 START_NUM_FRAMES = 4  # Total frames in the spritesheet
 running_forward = True  # Direction of animation (forward or backward)
-nova_name = "NOVA" # Text for the name under the image
+nova_name = "NOVA"  # Text for the name under the image
 FRAME_WIDTH, FRAME_HEIGHT = 128, 128  # Original frame size
 TARGET_FRAME_WIDTH, TARGET_FRAME_HEIGHT = 80, 80  # Target frame size
 CHARACTER_NUM_FRAMES = 4
@@ -36,7 +36,7 @@ door_sheet = pygame.image.load("assets/images/start-door.png").convert_alpha()
 door_sheet = pygame.transform.scale(door_sheet, (door_sheet.get_width() * 8, door_sheet.get_height() * 9))
 nova = pygame.image.load("assets/characters/NOVA.png")
 nova = pygame.transform.scale(nova, (200, 200))  # Resize to 200x200 pixels
-original_spritesheet = pygame.image.load(f"assets/characters/{character}.png").convert_alpha() # Load the spritesheet
+original_spritesheet = pygame.image.load(f"assets/characters/{character}.png").convert_alpha()  # Load the spritesheet
 
 # Ensure scaled sheet has enough space for all frames and directions
 scaled_width = TARGET_FRAME_WIDTH * CHARACTER_NUM_FRAMES
@@ -46,6 +46,7 @@ spritesheet = pygame.transform.scale(original_spritesheet, (scaled_width, scaled
 # Load a monospace font
 font = pygame.font.SysFont("monospace", 18)
 novaFont = pygame.font.SysFont("monospace", 36, bold=True)
+scrnfont = pygame.font.SysFont("monospace", 18, bold=True)
 
 # Extract frames with bounds checking
 def extract_directional_frames(spritesheet, frame_width, frame_height, num_frames, num_directions):
@@ -54,7 +55,7 @@ def extract_directional_frames(spritesheet, frame_width, frame_height, num_frame
         direction_frames = []
         for frame in range(num_frames):
             x = frame * frame_width
-            y = direction * frame_height 
+            y = direction * frame_height
             frame_surface = spritesheet.subsurface((x, y, frame_width, frame_height))
             direction_frames.append(frame_surface)
         frames.append(direction_frames)
@@ -112,6 +113,27 @@ def start_character():
     spritesheet = pygame.transform.scale(original_spritesheet, (scaled_width, scaled_height))
     frames = extract_directional_frames(spritesheet, TARGET_FRAME_WIDTH, TARGET_FRAME_HEIGHT, CHARACTER_NUM_FRAMES, NUM_DIRECTIONS)
     return frames
+
+# Function to draw buttons
+def draw_button(button_text, x, y, color, hover_color):
+    button_width = 150
+    button_height = 50
+    button_rect = pygame.Rect(x, y, button_width, button_height)
+    mouse_pos = pygame.mouse.get_pos()
+
+    if button_rect.collidepoint(mouse_pos):
+        pygame.draw.rect(screen, hover_color, button_rect)
+        if pygame.mouse.get_pressed()[0]:  # Left-click
+            return True  # Button clicked
+    else:
+        pygame.draw.rect(screen, color, button_rect)
+
+    # Render button text
+    text_surface = novaFont.render(button_text, True, pygame.Color("white"))
+    text_rect = text_surface.get_rect(center=button_rect.center)
+    screen.blit(text_surface, text_rect)
+
+    return False
 
 # Main game loop
 running = True
@@ -172,25 +194,40 @@ while running:
         scaled_y = y - (scaled_height - current_frame.get_height()) // 2
         screen.blit(scaled_frame, (scaled_x, scaled_y))
 
-        if pygame.event.get(pygame.MOUSEBUTTONDOWN):
-            room = "work cited"
-        elif pygame.event.get(pygame.KEYDOWN):
-            if pygame.key.get_pressed()[pygame.K_q]:
-                character -= 1
-                if character < 1:
-                    character = 11
-            if pygame.key.get_pressed()[pygame.K_w]:
-                character += 1
-                if character > 11:
-                    character = 1
-            print(character)
-        
+        # Render instructions text with a white box behind it
+        instructions_text = "Q or W to select character"
+        instructions_surface = scrnfont.render(instructions_text, True, pygame.Color("black"))
+
+        instructions_x = 25  # X-coordinate (pixels from the left)
+        instructions_y = 460  # Y-coordinate (pixels from the top)
+
+        # Draw a white box behind the instructions text
+        text_rect = pygame.Rect(instructions_x - 5, instructions_y - 5, instructions_surface.get_width() + 10, instructions_surface.get_height() + 10)
+        pygame.draw.rect(screen, pygame.Color("white"), text_rect)  # White background for the text
+
+        # Draw the instructions text on top of the white box
+        screen.blit(instructions_surface, (instructions_x, instructions_y))
+
+        # Draw the buttons and check if clicked
+        if draw_button("Start", 475, 250, pygame.Color("bisque4"), pygame.Color("chocolate4")):
+            room = "start"  # Proceed to the start room
+        if draw_button("Work Cited", 475, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue")):
+            room = "work cited"  # Go to the work cited room
+        if draw_button("Help", 475, 390, pygame.Color("lightgreen"), pygame.Color("green")):
+            room = "help"  # Go to the help room
+            
     elif room == "work cited":
-        screen.fill((255, 0, 0))
+        screen.fill((0, 0, 255))  # Blue screen
 
         if pygame.event.get(pygame.MOUSEBUTTONDOWN):
-            room = "start"
-    
+            room = "start"  # Go back to the start when mouse is clicked
+            
+    elif room == "help":
+        screen.fill((0, 255, 0))  # Green screen
+
+        if pygame.event.get(pygame.MOUSEBUTTONDOWN):
+            room = "start"  # Go back to the start when mouse is clicked
+
     for event in pygame.event.get():
         if event.type == QUIT:
             running = False
