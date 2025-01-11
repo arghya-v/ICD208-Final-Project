@@ -69,7 +69,9 @@ while running:
     elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
         y += SPEED
         direction = 0  # DOWN
-    
+    else:
+        direction = 0  # Default to DOWN
+        
     # Update frame based on timer
     frame_timer += clock.get_time()
     if frame_timer > FRAME_RATE:

@@ -27,6 +27,9 @@ direction = 0  # Default direction (DOWN)
 charecter_frame_index = 0  # Current frame
 charecter_frame_timer = 0  # Timer for frame updates
 
+# Scaling factor for the character
+SCALE_FACTOR = 8  # Scale up the character size by 2x
+
 # Load assets once
 background = pygame.image.load("assets/images/start_background.jpg").convert()
 background = pygame.transform.scale(background, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
@@ -67,14 +70,12 @@ def crop(sheet, frame):
 
 # Function to draw the static text (with wrapping) and the rectangle
 def draw_textbox(text):
-    # Set the maximum width for each line of text
     max_width = SCREEN_WIDTH - 250  # Leave padding on both sides
 
     words = text.split(" ")  # Split text into words
     lines = []
     current_line = ""
 
-    # Split words into lines based on the max width
     for word in words:
         test_line = current_line + " " + word if current_line else word
         test_surface = font.render(test_line, True, pygame.Color("white"))
@@ -88,7 +89,6 @@ def draw_textbox(text):
     if current_line:  # Add the last line if there is one
         lines.append(current_line)
 
-    # Calculate the height of the entire text block
     text_height = len(lines) * font.get_height()
 
     rect_padding = 10  # Padding around the text inside the box
@@ -97,11 +97,9 @@ def draw_textbox(text):
     rect_width = max_width + rect_padding * 2  # Width of the rectangle (considering padding)
     rect_height = text_height + rect_padding * 2  # Height of the rectangle (considering padding)
 
-    # Draw the rectangle (box)
     pygame.draw.rect(screen, pygame.Color("white"), (rect_x, rect_y, rect_width, rect_height))  # Outer box
     pygame.draw.rect(screen, pygame.Color("black"), (rect_x + 3, rect_y + 3, rect_width - 6, rect_height - 6))  # Inner white box (border effect)
 
-    # Render each line and blit it to the screen
     y_offset = rect_y + rect_padding  # Starting Y position, adjusted for padding
     for line in lines:
         txt_surface = font.render(line, True, pygame.Color("white"))
@@ -109,9 +107,7 @@ def draw_textbox(text):
         y_offset += font.get_height()  # Move the Y position down for the next line
 
 def start_character():
-    #Sprite:
-    original_spritesheet = pygame.image.load(f"assets/characters/{character}.png").convert_alpha() # Load the spritesheet
-    # Ensure scaled sheet has enough space for all frames and directions
+    original_spritesheet = pygame.image.load(f"assets/characters/{character}.png").convert_alpha()  # Load the spritesheet
     scaled_width = TARGET_FRAME_WIDTH * CHARACTER_NUM_FRAMES
     scaled_height = TARGET_FRAME_HEIGHT * NUM_DIRECTIONS
     spritesheet = pygame.transform.scale(original_spritesheet, (scaled_width, scaled_height))
@@ -122,62 +118,74 @@ def start_character():
 running = True
 while running:
     screen.fill((0, 0, 0))  # Clear screen
-
+    direction = 0
     if room == "start":
-        
         # Draw background
         screen.blit(background, (0, 0))
         screen.blit(background, (400, 0))
         screen.blit(background, (0, 300))
         screen.blit(background, (400, 300))
+        
+        # Player's starting position and direction
+        x, y = 125, 125  # Position of the sprite
+        direction = 0    # Default direction (DOWN)
 
-        # Get mouse position
         mouse_pos = pygame.mouse.get_pos()
 
-        # Draw sprite and update frame
-        door_pos = (300, 600-door_sheet.get_height())  # Position where the sprite is drawn
-        crop_rect = pygame.Rect((door_pos[0]+25, door_pos[1]+55), ((door_sheet.get_width() // START_NUM_FRAMES)-57, door_sheet.get_height()-60))
+        # Door animation logic
+        door_pos = (300, 600 - door_sheet.get_height())
+        crop_rect = pygame.Rect(
+            (door_pos[0] + 25, door_pos[1] + 55), 
+            ((door_sheet.get_width() // START_NUM_FRAMES) - 57, door_sheet.get_height() - 60)
+        )
         
         if crop_rect.collidepoint(mouse_pos):
-            # Hovering: Animate forward
             start_frame_timer += clock.get_time()
             if start_frame_timer > FRAME_RATE:
                 start_frame_timer = 0
                 if start_frame_index < START_NUM_FRAMES - 1:
                     start_frame_index += 1
         else:
-            # Not hovering: Animate backward
             start_frame_timer += clock.get_time()
             if start_frame_timer > FRAME_RATE:
                 start_frame_timer = 0
                 if start_frame_index > 0:
                     start_frame_index -= 1
-        
-        # Blit the current frame of the sprite
+
         pygame.draw.rect(screen, (0, 0, 0), (crop_rect.x, crop_rect.y, crop_rect.width, crop_rect.height), 0)
         screen.blit(crop(door_sheet, start_frame_index), door_pos)
-        if a == 0:
-            frames = start_character()
-            a = 1
-        screen.blit(frames[direction][charecter_frame_index], (x, y))
-        
-        
-        if pygame.event.get(pygame.MOUSEBUTTONDOWN):
-            room = "work cited"
-        
 
+        if a == 0:
+            frames = start_character()  # Load frames once
+            a = 1
+
+        charecter_frame_timer += clock.get_time()
+        if charecter_frame_timer > FRAME_RATE:
+            charecter_frame_timer = 0
+            charecter_frame_index = (charecter_frame_index + 1) % CHARACTER_NUM_FRAMES
+
+        # Blit the scaled character sprite
+        current_frame = frames[direction][charecter_frame_index]
+        scaled_width = current_frame.get_width() * SCALE_FACTOR
+        scaled_height = current_frame.get_height() * SCALE_FACTOR
+        scaled_frame = pygame.transform.scale(current_frame, (scaled_width, scaled_height))
+        scaled_x = x - (scaled_width - current_frame.get_width()) // 2
+        scaled_y = y - (scaled_height - current_frame.get_height()) // 2
+        screen.blit(scaled_frame, (scaled_x, scaled_y))
+
+    if pygame.event.get(pygame.MOUSEBUTTONDOWN):
+        room = "work cited"
+        
     elif room == "work cited":
         screen.fill((255, 0, 0))
 
         if pygame.event.get(pygame.MOUSEBUTTONDOWN):
             room = "start"
     
-    # Handle events
     for event in pygame.event.get():
         if event.type == QUIT:
             running = False
     
-    # Update display and tick clock
     pygame.display.flip()
     clock.tick(30)
 
