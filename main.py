@@ -9,7 +9,6 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 
 # Initialize variables
-a = 0
 room = "start"
 start_frame_index = 0  # Current frame
 start_frame_timer = 0  # Timer for frame updates
@@ -117,8 +116,10 @@ def start_character():
 # Main game loop
 running = True
 while running:
+    
     screen.fill((0, 0, 0))  # Clear screen
     direction = 0
+    
     if room == "start":
         # Draw background
         screen.blit(background, (0, 0))
@@ -155,9 +156,7 @@ while running:
         pygame.draw.rect(screen, (0, 0, 0), (crop_rect.x, crop_rect.y, crop_rect.width, crop_rect.height), 0)
         screen.blit(crop(door_sheet, start_frame_index), door_pos)
 
-        if a == 0:
-            frames = start_character()  # Load frames once
-            a = 1
+        frames = start_character()  # Load frames once
 
         charecter_frame_timer += clock.get_time()
         if charecter_frame_timer > FRAME_RATE:
@@ -173,8 +172,18 @@ while running:
         scaled_y = y - (scaled_height - current_frame.get_height()) // 2
         screen.blit(scaled_frame, (scaled_x, scaled_y))
 
-    if pygame.event.get(pygame.MOUSEBUTTONDOWN):
-        room = "work cited"
+        if pygame.event.get(pygame.MOUSEBUTTONDOWN):
+            room = "work cited"
+        elif pygame.event.get(pygame.KEYDOWN):
+            if pygame.key.get_pressed()[pygame.K_q]:
+                character -= 1
+                if character < 1:
+                    character = 11
+            if pygame.key.get_pressed()[pygame.K_w]:
+                character += 1
+                if character > 11:
+                    character = 1
+            print(character)
         
     elif room == "work cited":
         screen.fill((255, 0, 0))
