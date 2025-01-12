@@ -302,7 +302,7 @@ while running:
     elif room == "cutscene":
         screen.blit(cutscene_background, (0, 0))
         simple_text("Space to skip cutscene.", 10, 10)
-        if draw_button("Skip", 10, 10, "black", "white", 30):
+        if draw_button("Skip", 20, SCREEN_HEIGHT-60, "azure4", "gray24", 100, 30, "white", 20):
             room = "room1"
 
         time_cutscene += clock.get_time()
@@ -378,8 +378,6 @@ while running:
         
         elif time_cutscene > 35500:
             room = "room1"  # Proceed to the first room
-
-        print(time_cutscene)
 
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_SPACE]:
