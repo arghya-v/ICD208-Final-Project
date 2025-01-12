@@ -27,6 +27,7 @@ charecter_frame_index = 0  # Current frame
 charecter_frame_timer = 0  # Timer for frame updates
 linecount = 0 # Used to add space between lines on help and works cited page.
 SCALE_FACTOR = 8  # Scaling factor for the character Scale up the character size by 2x
+time_cutscene = 0 # Used to time the cutscene
 
 # Load assets once
 start_background = pygame.image.load("assets/images/start_background.jpg").convert()
@@ -35,6 +36,8 @@ door_sheet = pygame.image.load("assets/images/start-door.png").convert_alpha()
 door_sheet = pygame.transform.scale(door_sheet, (door_sheet.get_width() * 8, door_sheet.get_height() * 9))
 workscited_background = pygame.image.load("assets/images/scroll.png").convert_alpha()
 workscited_background = pygame.transform.scale(workscited_background, (SCREEN_WIDTH, SCREEN_HEIGHT - 80))
+cutscene_background = pygame.image.load("assets/images/cut_scene-background.png").convert()
+cutscene_background = pygame.transform.scale(cutscene_background, (SCREEN_WIDTH, SCREEN_HEIGHT))
 nova = pygame.image.load("assets/characters/NOVA.png")
 nova = pygame.transform.scale(nova, (200, 200))  # Resize to 200x200 pixels
 original_spritesheet = pygame.image.load(f"assets/characters/{character}.png").convert_alpha()  # Load the spritesheet
@@ -218,7 +221,7 @@ while running:
 
         # Draw the buttons and check if clicked
         if draw_button("Start", crop_rect.centerx-125, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
-            room = "room1"  # Proceed to the first room
+            room = "cutscene"  # Proceed to the first room
         if draw_button("Work Cited", crop_rect.centerx-125, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
             room = "work cited"  # Go to the work cited room
         if draw_button("Help", crop_rect.centerx-125, 390, pygame.Color("lightgreen"), pygame.Color("green"), 250, 50):
@@ -295,11 +298,39 @@ while running:
             if pygame.key.get_pressed()[pygame.K_ESCAPE]:
                 room = "start"  # Go back to the start when escape is pressed
     
-    elif room == "room1":
-        screen.fill((255, 0, 0))  # Red screen
+    elif room == "cutscene":
+        screen.blit(cutscene_background, (0, 0))
+        simple_text("Space to skip cutscene.", 10, 10)
 
-        if pygame.event.get(pygame.MOUSEBUTTONDOWN):
-            room = "start"  # Go back to the start when space is pressed
+        time_cutscene += clock.get_time()
+        if time_cutscene < 2990:
+            draw_textbox("Where... am I?", 20, 100)
+
+            current_frame = frames[0][0]
+            SCALE_FACTOR = 4
+            scaled_width = current_frame.get_width() * SCALE_FACTOR
+            scaled_height = current_frame.get_height() * SCALE_FACTOR
+            scaled_frame = pygame.transform.scale(current_frame, (scaled_width, scaled_height))
+            screen.blit(scaled_frame, (550, -100))
+
+        elif time_cutscene > 3010 and time_cutscene < 33000:
+            draw_textbox("Good morning, Player. I am NOVA, your Artificial Intelligence guide. Welcome to the escape room. Your mission is to solve puzzles and challenges, all while learning about the wonders—and risks—of AI. Failure to succeed will leave you here... indefinitely.", 210, 100)
+            screen.blit(nova, (0, 75))
+
+        elif time_cutscene > 34500 and time_cutscene < 40000:
+            draw_textbox("Wait... what? Is this some kind of joke?", 20, 100)
+            screen.blit(scaled_frame, (550, -100))
+        
+        elif time_cutscene > 100000:
+            room = "room1"  # Proceed to the first room
+
+        if pygame.event.get(pygame.KEYDOWN):
+            if pygame.key.get_pressed()[pygame.K_SPACE]:
+                room = "room1"  # Go to the first room when space is pressed
+        
+    elif room == "room1":
+        #forgot how to fill screen keeps ginving error
+        screen.fill((0, 0, 0))
 
     for event in pygame.event.get():
         if event.type == QUIT:
