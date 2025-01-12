@@ -211,7 +211,7 @@ while running:
         scaled_y = y - (scaled_height - current_frame.get_height()) // 2
         screen.blit(scaled_frame, (scaled_x, scaled_y))
 
-        simple_text("Q or W to select character", 20, 455)
+        simple_text("Q or W to change characters", 10, 455)
 
         # Draw the buttons and check if clicked
         if draw_button("Start", crop_rect.centerx-125, 250, pygame.Color("bisque4"), pygame.Color("chocolate4")):
@@ -225,11 +225,14 @@ while running:
             if event.key == pygame.K_q:
                 character -= 1
                 if character < 1:
-                    character = 11
+                    character = 10
             elif event.key == pygame.K_w:
                 character += 1
-                if character > 11:
+                if character > 10:
                     character = 1
+        
+        frames = start_character()  # Load frames once more so we have it in future rooms and don't need to keep reloading
+
             
     elif room == "work cited":
         screen.fill((0, 0, 255))  # Blue screen
