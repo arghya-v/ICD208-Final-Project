@@ -210,11 +210,21 @@ while running:
 
         # Draw the buttons and check if clicked
         if draw_button("Start", 475, 250, pygame.Color("bisque4"), pygame.Color("chocolate4")):
-            room = "start"  # Proceed to the start room
+            room = "room1"  # Proceed to the first room
         if draw_button("Work Cited", 475, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue")):
             room = "work cited"  # Go to the work cited room
         if draw_button("Help", 475, 390, pygame.Color("lightgreen"), pygame.Color("green")):
             room = "help"  # Go to the help room
+
+        for event in pygame.event.get(pygame.KEYDOWN):
+            if event.key == pygame.K_q:
+                character -= 1
+                if character < 1:
+                    character = 11
+            elif event.key == pygame.K_w:
+                character += 1
+                if character > 11:
+                    character = 1
             
     elif room == "work cited":
         screen.fill((0, 0, 255))  # Blue screen
@@ -224,6 +234,12 @@ while running:
             
     elif room == "help":
         screen.fill((0, 255, 0))  # Green screen
+
+        if pygame.event.get(pygame.MOUSEBUTTONDOWN):
+            room = "start"  # Go back to the start when mouse is clicked
+    
+    elif room == "room1":
+        screen.fill((255, 0, 0))  # Red screen
 
         if pygame.event.get(pygame.MOUSEBUTTONDOWN):
             room = "start"  # Go back to the start when mouse is clicked
