@@ -1,5 +1,6 @@
 import pygame, sys
 from pygame.locals import QUIT
+import math
 pygame.init()
 
 # Screen dimensions and frame rate
@@ -301,9 +302,59 @@ while running:
     elif room == "cutscene":
         screen.blit(cutscene_background, (0, 0))
         simple_text("Space to skip cutscene.", 10, 10)
+        if draw_button("Skip", 10, 10, "black", "white", 30):
+            room = "room1"
 
         time_cutscene += clock.get_time()
-        if time_cutscene < 2990:
+
+        if time_cutscene < 10000:
+            # Draw the text in room1
+            draw_textbox("AI is taking over the world and has trapped you in its neural network", 
+                        rect_x=200, rect_y=50, ifBackground=True, 
+                        usefont=font, max_width=SCREEN_WIDTH - 300, 
+                        text_colour="white", rect_padding=20)
+            
+            draw_textbox("Escape.", 
+                        rect_x=200, rect_y=200, ifBackground=True, 
+                        usefont=font, max_width=SCREEN_WIDTH - 700, 
+                        text_colour="white", rect_padding=20)
+            
+            # Floating character logic
+            floating_scale_factor = 2  # Smaller scaling factor for the floating character
+            floating_amplitude = 20  # Height of the floating motion (in pixels)
+            floating_wave_width = 0.001  # Smaller value widens the wave (phase progression slowed)
+            rotation_speed = 0.005  # Speed of rotation (degrees per millisecond)
+            rightward_speed = 0.05  # Speed of rightward movement
+
+            # Calculate floating character position
+            floating_y_offset = int(floating_amplitude * math.sin(pygame.time.get_ticks() * floating_wave_width))
+            floating_x = 0 + int(pygame.time.get_ticks() * rightward_speed) % SCREEN_WIDTH  # Moves right over time
+            floating_y = 320 + floating_y_offset  # Center position, adjusted for vertical movement
+
+            # Get the scaled character frame
+            current_frame = frames[0][0]  # Default frame (down, first animation frame)
+            small_width = int(current_frame.get_width() * floating_scale_factor)
+            small_height = int(current_frame.get_height() * floating_scale_factor)
+            small_frame = pygame.transform.scale(current_frame, (small_width, small_height))
+
+            # Calculate rotation angle
+            angle = (pygame.time.get_ticks() * rotation_speed) % 360  # Rotate over time
+            rotated_frame = pygame.transform.rotate(small_frame, angle)
+
+            # Adjust position for rotated image (since rotation changes the size)
+            rotated_rect = rotated_frame.get_rect(center=(floating_x, floating_y))
+
+            # Draw the rotated character
+            screen.blit(rotated_frame, rotated_rect.topleft)
+            
+            # Blit nova at the bottom-right corner
+            nova_original = pygame.image.load("assets/characters/NOVA.png").convert_alpha()  # Load the nova image
+            nova_scaled = pygame.transform.scale(nova_original, (200, 200))  # Scale the nova image to 200x200
+            nova_x = 0  # Position x to align nova in the bottom-right
+            nova_y = 50  # Position y to align nova in the bottom-right
+            screen.blit(nova_scaled, (nova_x, nova_y))  # Blit nova image
+
+        if time_cutscene > 10010 and time_cutscene < 13000:
             draw_textbox("Where... am I?", 20, 100)
 
             current_frame = frames[0][0]
@@ -313,16 +364,22 @@ while running:
             scaled_frame = pygame.transform.scale(current_frame, (scaled_width, scaled_height))
             screen.blit(scaled_frame, (550, -100))
 
-        elif time_cutscene > 3010 and time_cutscene < 33000:
+        elif time_cutscene > 13010 and time_cutscene < 23000:
             draw_textbox("Good morning, Player. I am NOVA, your Artificial Intelligence guide. Welcome to the escape room. Your mission is to solve puzzles and challenges, all while learning about the wonders—and risks—of AI. Failure to succeed will leave you here... indefinitely.", 210, 100)
             screen.blit(nova, (0, 75))
 
-        elif time_cutscene > 34500 and time_cutscene < 40000:
+        elif time_cutscene > 24500 and time_cutscene < 30000:
             draw_textbox("Wait... what? Is this some kind of joke?", 20, 100)
             screen.blit(scaled_frame, (550, -100))
         
-        elif time_cutscene > 100000:
+        elif time_cutscene > 31000 and time_cutscene < 35000:
+            draw_textbox("I assure you, this is no joke. Let us begin. Your first task awaits.", 210, 100)
+            screen.blit(nova, (0, 25))
+        
+        elif time_cutscene > 35500:
             room = "room1"  # Proceed to the first room
+
+        print(time_cutscene)
 
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_SPACE]:
@@ -330,7 +387,7 @@ while running:
         
     elif room == "room1":
         #forgot how to fill screen keeps ginving error
-        screen.fill((0, 0, 0))
+        screen.fill((255, 0, 0))
 
     for event in pygame.event.get():
         if event.type == QUIT:
