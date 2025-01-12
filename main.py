@@ -48,6 +48,22 @@ font = pygame.font.SysFont("monospace", 18)
 novaFont = pygame.font.SysFont("monospace", 36, bold=True)
 scrnfont = pygame.font.SysFont("monospace", 18, bold=True)
 
+# Simple textbox for giving what key to use for something
+def simple_text(text, x, y, colour="black", back_colour="white"):
+    # Render instructions text with a white box behind it
+    instructions_text = text
+    instructions_surface = scrnfont.render(instructions_text, True, pygame.Color(colour))
+
+    instructions_x = x + 5  # X-coordinate (pixels from the left)
+    instructions_y = y + 5  # Y-coordinate (pixels from the top)
+
+    # Draw a white box behind the instructions text
+    text_rect = pygame.Rect(instructions_x - 5, instructions_y - 5, instructions_surface.get_width() + 10, instructions_surface.get_height() + 10)
+    pygame.draw.rect(screen, pygame.Color(back_colour), text_rect)  # White background for the text
+
+    # Draw the instructions text on top of the white box
+    screen.blit(instructions_surface, (instructions_x, instructions_y))
+
 # Extract frames with bounds checking
 def extract_directional_frames(spritesheet, frame_width, frame_height, num_frames, num_directions):
     frames = []
@@ -116,17 +132,18 @@ def start_character():
 
 # Function to draw buttons
 def draw_button(button_text, x, y, color, hover_color):
-    button_width = 150
+    button_width = 250
     button_height = 50
     button_rect = pygame.Rect(x, y, button_width, button_height)
     mouse_pos = pygame.mouse.get_pos()
 
-    if button_rect.collidepoint(mouse_pos):
-        pygame.draw.rect(screen, hover_color, button_rect)
-        if pygame.mouse.get_pressed()[0]:  # Left-click
-            return True  # Button clicked
-    else:
-        pygame.draw.rect(screen, color, button_rect)
+    if room == "start":
+        if button_rect.collidepoint(mouse_pos):
+            pygame.draw.rect(screen, hover_color, button_rect)
+            if pygame.mouse.get_pressed()[0]:  # Left-click
+                return True  # Button clicked
+        else:
+            pygame.draw.rect(screen, color, button_rect)
 
     # Render button text
     text_surface = novaFont.render(button_text, True, pygame.Color("white"))
@@ -194,26 +211,14 @@ while running:
         scaled_y = y - (scaled_height - current_frame.get_height()) // 2
         screen.blit(scaled_frame, (scaled_x, scaled_y))
 
-        # Render instructions text with a white box behind it
-        instructions_text = "Q or W to select character"
-        instructions_surface = scrnfont.render(instructions_text, True, pygame.Color("black"))
-
-        instructions_x = 25  # X-coordinate (pixels from the left)
-        instructions_y = 460  # Y-coordinate (pixels from the top)
-
-        # Draw a white box behind the instructions text
-        text_rect = pygame.Rect(instructions_x - 5, instructions_y - 5, instructions_surface.get_width() + 10, instructions_surface.get_height() + 10)
-        pygame.draw.rect(screen, pygame.Color("white"), text_rect)  # White background for the text
-
-        # Draw the instructions text on top of the white box
-        screen.blit(instructions_surface, (instructions_x, instructions_y))
+        simple_text("Q or W to select character", 20, 455)
 
         # Draw the buttons and check if clicked
-        if draw_button("Start", 475, 250, pygame.Color("bisque4"), pygame.Color("chocolate4")):
+        if draw_button("Start", crop_rect.centerx-125, 250, pygame.Color("bisque4"), pygame.Color("chocolate4")):
             room = "room1"  # Proceed to the first room
-        if draw_button("Work Cited", 475, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue")):
+        if draw_button("Work Cited", crop_rect.centerx-125, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue")):
             room = "work cited"  # Go to the work cited room
-        if draw_button("Help", 475, 390, pygame.Color("lightgreen"), pygame.Color("green")):
+        if draw_button("Help", crop_rect.centerx-125, 390, pygame.Color("lightgreen"), pygame.Color("green")):
             room = "help"  # Go to the help room
 
         for event in pygame.event.get(pygame.KEYDOWN):
@@ -229,20 +234,22 @@ while running:
     elif room == "work cited":
         screen.fill((0, 0, 255))  # Blue screen
 
-        if pygame.event.get(pygame.MOUSEBUTTONDOWN):
-            room = "start"  # Go back to the start when mouse is clicked
+        if pygame.event.get(pygame.KEYDOWN):
+            if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+                room = "start"  # Go back to the start when escape is pressed
             
     elif room == "help":
         screen.fill((0, 255, 0))  # Green screen
 
-        if pygame.event.get(pygame.MOUSEBUTTONDOWN):
-            room = "start"  # Go back to the start when mouse is clicked
+        if pygame.event.get(pygame.KEYDOWN):
+            if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+                room = "start"  # Go back to the start when escape is pressed
     
     elif room == "room1":
         screen.fill((255, 0, 0))  # Red screen
 
         if pygame.event.get(pygame.MOUSEBUTTONDOWN):
-            room = "start"  # Go back to the start when mouse is clicked
+            room = "start"  # Go back to the start when escape is pressed
 
     for event in pygame.event.get():
         if event.type == QUIT:
