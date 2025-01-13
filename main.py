@@ -22,13 +22,14 @@ CHARACTER_NUM_FRAMES = 4
 NUM_DIRECTIONS = 4
 character = 1
 FRAME_RATE = 300  # Milliseconds per frame
-x, y = 100, 300  # Starting position | Initial sprite position and state:
-direction = 0  # Default direction (DOWN)
+x, y = 10, 590  # Starting position | Initial sprite position and state:
+direction = 3  # Default direction (DOWN)
 charecter_frame_index = 0  # Current frame
 charecter_frame_timer = 0  # Timer for frame updates
 linecount = 0 # Used to add space between lines on help and works cited page.
 SCALE_FACTOR = 8  # Scaling factor for the character Scale up the character size by 2x
 time_cutscene = 0 # Used to time the cutscene
+SPEED = 5
 
 # Load assets once
 start_background = pygame.image.load("assets/images/start_background.jpg").convert()
@@ -40,7 +41,7 @@ workscited_background = pygame.transform.scale(workscited_background, (SCREEN_WI
 cutscene_background = pygame.image.load("assets/images/cut_scene-background.png").convert()
 cutscene_background = pygame.transform.scale(cutscene_background, (SCREEN_WIDTH, SCREEN_HEIGHT))
 room1_background = pygame.image.load("assets/images/room_one-background.png").convert()
-
+room1_background = pygame.transform.scale(room1_background, (room1_background.get_width()/6, SCREEN_HEIGHT))
 nova = pygame.image.load("assets/characters/NOVA.png")
 nova = pygame.transform.scale(nova, (200, 200))  # Resize to 200x200 pixels
 original_spritesheet = pygame.image.load(f"assets/characters/{character}.png").convert_alpha()  # Load the spritesheet
@@ -161,7 +162,6 @@ def draw_button(button_text, x, y, color, hover_color, width, height=50, textCol
 
     return False
 
-
 def room_start():
     global start
     if not start:
@@ -273,7 +273,6 @@ while running:
         
         frames = start_character()  # Load frames once more so we have it in future rooms and don't need to keep reloading
 
-            
     elif room == "work cited":
         screen.blit(start_background, (0, 0))
         screen.blit(start_background, (400, 0))
@@ -426,7 +425,52 @@ while running:
                 time_cutscene = 0
         
     elif room == "room1":
-        screen.fill((255, 0, 0))
+        screen.blit(room1_background, (0,0))
+
+        ROOM1_X_MIN = -100
+        ROOM1_X_MAX = SCREEN_WIDTH - 135
+        ROOM1_Y_MAX = SCREEN_HEIGHT - 190
+        if x > 380 and x < 490:
+            ROOM1_Y_MIN = 270
+        else:
+            ROOM1_Y_MIN = 390
+        if  y >= 270 and y < 390:
+            ROOM1_X_MIN = 381
+            ROOM1_X_MAX = 489
+
+        # Handle movement input
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            x += SPEED
+            direction = 1  # RIGHT
+        elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
+            x -= SPEED
+            direction = 3  # LEFT
+        elif keys[pygame.K_UP] or keys[pygame.K_w]:
+            y -= SPEED
+            direction = 2  # UP
+        elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
+            y += SPEED
+            direction = 0  # DOWN
+        else:
+            direction = 0  # Default to DOWN
+        
+        # Clamp position within boundaries
+        x = max(ROOM1_X_MIN, min(x, ROOM1_X_MAX))
+        y = max(ROOM1_Y_MIN, min(y, ROOM1_Y_MAX))
+        
+        # Update frame based on timer
+        charecter_frame_timer += clock.get_time()
+        if charecter_frame_timer > FRAME_RATE:
+            charecter_frame_index = (charecter_frame_index + 1) % CHARACTER_NUM_FRAMES
+            charecter_frame_timer = 0
+
+        current_frame = frames[direction][charecter_frame_index]
+        SCALE_FACTOR = 2.5
+        scaled_width = current_frame.get_width() * SCALE_FACTOR
+        scaled_height = current_frame.get_height() * SCALE_FACTOR
+        scaled_frame = pygame.transform.scale(current_frame, (scaled_width, scaled_height))
+        screen.blit(scaled_frame, (x, y))
 
     for event in pygame.event.get():
         if event.type == QUIT:
