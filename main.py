@@ -11,6 +11,7 @@ clock = pygame.time.Clock()
 
 # Initialize variables
 room = "start"
+start = True
 start_frame_index = 0  # Current frame
 start_frame_timer = 0  # Timer for frame updates
 START_NUM_FRAMES = 4  # Total frames in the spritesheet
@@ -159,11 +160,37 @@ def draw_button(button_text, x, y, color, hover_color, width, height=50, textCol
 
     return False
 
+def room_start():
+    global start
+    if not start:
+        return  # Skip processing if `start` is False
+
+    if pygame.mixer.music.get_busy():
+        pygame.mixer.music.fadeout(1000)
+    else:
+        # Determine the music to load based on the room
+        music_files = {
+            "start": "assets/bgm/bgm-works_cited_help.mp3",
+            "work cited": "assets/bgm/bgm-extra.mp3",
+            "help": "assets/bgm/bgm-extra.mp3",
+            "cutscene": "assets/bgm/bgm-cut_scene.mp3",
+            "room1": "assets/bgm/bgm-room_one.mp3",
+        }
+
+        # Only load and play music if the room has a valid music file
+        if room in music_files:
+            new_music = music_files[room]
+            pygame.mixer.music.load(new_music)
+            pygame.mixer.music.set_volume(10)
+            pygame.mixer.music.play(-1, 0.0, 5000)
+        start = False
+
 # Main game loop
 running = True
 while running:
     
     screen.fill((0, 0, 0))  # Clear screen
+    room_start()
     direction = 0
     
     if room == "start":
@@ -172,7 +199,7 @@ while running:
         screen.blit(start_background, (400, 0))
         screen.blit(start_background, (0, 300))
         screen.blit(start_background, (400, 300))
-        
+
         # Player's starting position and direction
         x, y = 125, 125  # Position of the sprite
         direction = 0    # Default direction (DOWN)
@@ -223,10 +250,13 @@ while running:
         # Draw the buttons and check if clicked
         if draw_button("Start", crop_rect.centerx-125, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
             room = "cutscene"  # Proceed to the first room
+            start = True
         if draw_button("Work Cited", crop_rect.centerx-125, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
             room = "work cited"  # Go to the work cited room
+            start = True
         if draw_button("Help", crop_rect.centerx-125, 390, pygame.Color("lightgreen"), pygame.Color("green"), 250, 50):
             room = "help"  # Go to the help room
+            start = True
 
         for event in pygame.event.get(pygame.KEYDOWN):
             if event.key == pygame.K_q:
@@ -250,6 +280,7 @@ while running:
         simple_text("ESC to go back", 10, 10)
         if draw_button("Back", 10, SCREEN_HEIGHT-40, pygame.Color("gray67"), pygame.Color("gray50"), 100, 30, "white", 30):
             room = "start"
+            start = True
 
         workscited_text_surface = Titlefont.render("Works Cited", True, pygame.Color("black"))
         workscited_text_rect = workscited_text_surface.get_rect(centerx=workscited_background.get_rect().centerx, centery=153)
@@ -269,7 +300,8 @@ while running:
 
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_ESCAPE]:
-                room = "start"  # Go back to the start when escape is pressed
+                room = "start"  # Go back to the start when escape is 
+                start = True
             
     elif room == "help":
         screen.blit(start_background, (0, 0))
@@ -280,6 +312,7 @@ while running:
         simple_text("ESC to go back", 10, 10)
         if draw_button("Back", 10, SCREEN_HEIGHT-40, pygame.Color("gray67"), pygame.Color("gray50"), 100, 30, "white", 30):
             room = "start"
+            start = True
         
         help_text_surface = Titlefont.render("Help", True, pygame.Color("black"))
         help_text_rect = help_text_surface.get_rect(centerx=workscited_background.get_rect().centerx, centery=155)
@@ -298,12 +331,14 @@ while running:
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_ESCAPE]:
                 room = "start"  # Go back to the start when escape is pressed
+                start = True
     
     elif room == "cutscene":
         screen.blit(cutscene_background, (0, 0))
         simple_text("Space to skip cutscene.", 10, 10)
         if draw_button("Skip", 20, SCREEN_HEIGHT-60, "azure4", "gray24", 100, 30, "white", 20):
             room = "room1"
+            start = True
 
         time_cutscene += clock.get_time()
 
@@ -378,11 +413,13 @@ while running:
         
         elif time_cutscene > 35200:
             room = "room1"  # Proceed to the first room
+            start = True
             time_cutscene = 0
 
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_SPACE]:
                 room = "room1"  # Go to the first room when space is pressed
+                start = True
                 time_cutscene = 0
         
     elif room == "room1":
