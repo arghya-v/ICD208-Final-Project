@@ -1,4 +1,4 @@
-import pygame, sys, math
+import pygame, sys, math, time
 from pygame.locals import QUIT
 pygame.init()
 
@@ -39,6 +39,8 @@ workscited_background = pygame.image.load("assets/images/scroll.png").convert_al
 workscited_background = pygame.transform.scale(workscited_background, (SCREEN_WIDTH, SCREEN_HEIGHT - 80))
 cutscene_background = pygame.image.load("assets/images/cut_scene-background.png").convert()
 cutscene_background = pygame.transform.scale(cutscene_background, (SCREEN_WIDTH, SCREEN_HEIGHT))
+room1_background = pygame.image.load("assets/images/room_one-background.png").convert()
+
 nova = pygame.image.load("assets/characters/NOVA.png")
 nova = pygame.transform.scale(nova, (200, 200))  # Resize to 200x200 pixels
 original_spritesheet = pygame.image.load(f"assets/characters/{character}.png").convert_alpha()  # Load the spritesheet
@@ -167,9 +169,7 @@ def room_start():
 
     if pygame.mixer.music.get_busy():
         pygame.mixer.music.fadeout(200) # set to 1000ms after we have fade for cleaner fade_out
-        #pygame.time.wait(5) add in after we have fade because it stops animations
-        #return room_start() add in after we have fade because it stops animations
-    else:
+    if not pygame.mixer.get_busy():
         # Determine the music to load based on the room
         music_files = {
             "start": "assets/bgm/bgm-works_cited_help.mp3",
