@@ -46,6 +46,7 @@ nova = pygame.image.load("assets/characters/NOVA.png")
 nova = pygame.transform.scale(nova, (200, 200))  # Resize to 200x200 pixels
 original_spritesheet = pygame.image.load(f"assets/characters/{character}.png").convert_alpha()  # Load the spritesheet
 room2_background = pygame.image.load("assets/images/room_two-background.png").convert()
+computer = pygame.image.load("assets/images/room2computer.png").convert_alpha()
 
 # Ensure scaled sheet has enough space for all frames and directions
 scaled_width = TARGET_FRAME_WIDTH * CHARACTER_NUM_FRAMES
@@ -476,22 +477,23 @@ while running:
     # Room 2 logic
     elif room == "room2":
         scaledrm2 = pygame.transform.scale(room2_background, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        scaledpc = pygame.transform.scale(computer, (200, 200))
         screen.blit(scaledrm2, (0, 0))
+        screen.blit(scaledpc, (400, 325))
 
         # Initialize spawn position only once
         if not room2_initialized:
             room2_initialized = True
             x = 0  # Leftmost edge
             y = SCREEN_HEIGHT - 190  # Bottom edge (adjusted for character height)
-            print(f"Initial character position in room2: x = {x}, y = {y}")
 
         # Define boundaries for Room 2
         ROOM2_X_MIN = 0
-        ROOM2_X_MAX = SCREEN_WIDTH - 200  # Adjust based on character width (ensure it stays within bounds)
-        ROOM2_Y_MIN = SCREEN_HEIGHT - 290 
-        ROOM2_Y_MAX = SCREEN_HEIGHT - 90  # Adjust based on character height to leave room for movement
+        ROOM2_X_MAX = SCREEN_WIDTH - 200 
+        ROOM2_Y_MIN = SCREEN_HEIGHT - 290
+        ROOM2_Y_MAX = SCREEN_HEIGHT - 90  
 
-        # Handle movement input
+        
         keys = pygame.key.get_pressed()
 
         # Move horizontally and vertically based on keys pressed
@@ -510,7 +512,6 @@ while running:
         else:
             direction = 0  # Default to DOWN
 
-
         # Apply clamping after movement
         if x < ROOM2_X_MIN:
             x = ROOM2_X_MIN
@@ -522,8 +523,7 @@ while running:
         elif y > ROOM2_Y_MAX:
             y = ROOM2_Y_MAX
 
-
-        # Update frame based on timer
+        
         charecter_frame_timer += clock.get_time()
         if charecter_frame_timer > FRAME_RATE:
             charecter_frame_index = (charecter_frame_index + 1) % CHARACTER_NUM_FRAMES
@@ -536,6 +536,41 @@ while running:
         scaled_height = current_frame.get_height() * SCALE_FACTOR
         scaled_frame = pygame.transform.scale(current_frame, (scaled_width, scaled_height))
         screen.blit(scaled_frame, (x, y))
+
+        # Calculate distance between character and computer
+        computer_center_x = 400 + 100  
+        computer_center_y = 325 + 100  
+        character_center_x = x + (scaled_width // 2)
+        character_center_y = y + (scaled_height // 2)
+
+        distance = ((computer_center_x - character_center_x) ** 2 + 
+                    (computer_center_y - character_center_y) ** 2) ** 0.5
+
+        # Check if the character is close to the computer
+        INTERACT_DISTANCE = 60  # Adjust based on desired range
+        if distance < INTERACT_DISTANCE:
+            # Render "E to interact" text
+            font = pygame.font.Font(None, 36)  
+            interact_text = font.render("E to interact", True, (255, 255, 255))  
+            text_rect = interact_text.get_rect(topright=(SCREEN_WIDTH - 20, 20)) 
+            screen.blit(interact_text, text_rect)
+        if keys[pygame.K_e] and distance < INTERACT_DISTANCE:
+            room = "computer"  
+
+    elif room == "computer":
+        screen.fill((0, 0, 255))  
+        buttonfont = pygame.font.Font(None, 36)
+        back_button_text = buttonfont.render("Back", True, (255, 255, 255))  # White text
+        back_button_rect = pygame.Rect(20, 25, 100, 50)  # x, y, width, height
+        pygame.draw.rect(screen, (200, 0, 0), back_button_rect)  # Red background
+        screen.blit(back_button_text, (back_button_rect.x + 10, back_button_rect.y + 10))  # Add padding for text
+
+        # Check for mouse click on the Back button
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()  # Get mouse position
+                if back_button_rect.collidepoint(mouse_pos):  # Check if clicked on Back button
+                    room = "room2"  # Go back to room2
 
     for event in pygame.event.get():
         if event.type == QUIT:
