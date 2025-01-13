@@ -1,6 +1,5 @@
-import pygame, sys
+import pygame, sys, math
 from pygame.locals import QUIT
-import math
 pygame.init()
 
 # Screen dimensions and frame rate
@@ -160,13 +159,16 @@ def draw_button(button_text, x, y, color, hover_color, width, height=50, textCol
 
     return False
 
+
 def room_start():
     global start
     if not start:
         return  # Skip processing if `start` is False
 
     if pygame.mixer.music.get_busy():
-        pygame.mixer.music.fadeout(1000)
+        pygame.mixer.music.fadeout(200) # set to 1000ms after we have fade for cleaner fade_out
+        #pygame.time.wait(5) add in after we have fade because it stops animations
+        #return room_start() add in after we have fade because it stops animations
     else:
         # Determine the music to load based on the room
         music_files = {
@@ -182,7 +184,8 @@ def room_start():
             new_music = music_files[room]
             pygame.mixer.music.load(new_music)
             pygame.mixer.music.set_volume(10)
-            pygame.mixer.music.play(-1, 0.0, 5000)
+            pygame.mixer.music.play(-1, 0.0, 4000) # set to 6000ms for cleaner fade after we have fade to black set up
+        
         start = False
 
 # Main game loop
@@ -192,7 +195,7 @@ while running:
     screen.fill((0, 0, 0))  # Clear screen
     room_start()
     direction = 0
-    
+
     if room == "start":
         # Draw start_background
         screen.blit(start_background, (0, 0))
