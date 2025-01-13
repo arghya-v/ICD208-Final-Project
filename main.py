@@ -488,8 +488,8 @@ while running:
         # Define boundaries for Room 2
         ROOM2_X_MIN = 0
         ROOM2_X_MAX = SCREEN_WIDTH - 200  # Adjust based on character width (ensure it stays within bounds)
-        ROOM2_Y_MIN = 0
-        ROOM2_Y_MAX = SCREEN_HEIGHT - 190  # Adjust based on character height to leave room for movement
+        ROOM2_Y_MIN = SCREEN_HEIGHT - 290 
+        ROOM2_Y_MAX = SCREEN_HEIGHT - 90  # Adjust based on character height to leave room for movement
 
         # Handle movement input
         keys = pygame.key.get_pressed()
@@ -504,16 +504,12 @@ while running:
         elif keys[pygame.K_UP] or keys[pygame.K_w]:
             y -= SPEED
             direction = 2  # UP
-            print(f"Moving UP: y = {y}")  # Debugging vertical movement
         elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
             y += SPEED
             direction = 0  # DOWN
-            print(f"Moving DOWN: y = {y}")  # Debugging vertical movement
         else:
             direction = 0  # Default to DOWN
 
-        # Debugging: Track the movement of the character
-        print(f"Before clamping: x = {x}, y = {y}")
 
         # Apply clamping after movement
         if x < ROOM2_X_MIN:
