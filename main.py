@@ -354,8 +354,8 @@ while running:
             nova_y = 50  # Position y to align nova in the bottom-right
             screen.blit(nova_scaled, (nova_x, nova_y))  # Blit nova image
 
-        if time_cutscene > 10010 and time_cutscene < 13000:
-            draw_textbox("Where... am I?", 20, 100)
+        if time_cutscene > 10010 and time_cutscene < 14000:
+            draw_textbox("WHAT! Who are you? How do I escape?!", 20, 100)
 
             current_frame = frames[0][0]
             SCALE_FACTOR = 4
@@ -364,7 +364,7 @@ while running:
             scaled_frame = pygame.transform.scale(current_frame, (scaled_width, scaled_height))
             screen.blit(scaled_frame, (550, -100))
 
-        elif time_cutscene > 13010 and time_cutscene < 23000:
+        elif time_cutscene > 14010 and time_cutscene < 23000:
             draw_textbox("Good morning, Player. I am NOVA, your Artificial Intelligence guide. Welcome to the escape room. Your mission is to solve puzzles and challenges, all while learning about the wonders—and risks—of AI. Failure to succeed will leave you here... indefinitely.", 210, 100)
             screen.blit(nova, (0, 75))
 
@@ -376,15 +376,16 @@ while running:
             draw_textbox("I assure you, this is no joke. Let us begin. Your first task awaits.", 210, 100)
             screen.blit(nova, (0, 25))
         
-        elif time_cutscene > 35500:
+        elif time_cutscene > 35200:
             room = "room1"  # Proceed to the first room
+            time_cutscene = 0
 
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_SPACE]:
                 room = "room1"  # Go to the first room when space is pressed
+                time_cutscene = 0
         
     elif room == "room1":
-        #forgot how to fill screen keeps ginving error
         screen.fill((255, 0, 0))
 
     for event in pygame.event.get():
