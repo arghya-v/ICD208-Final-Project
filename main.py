@@ -30,7 +30,7 @@ linecount = 0 # Used to add space between lines on help and works cited page.
 SCALE_FACTOR = 8  # Scaling factor for the character Scale up the character size by 2x
 time_cutscene = 0 # Used to time the cutscene
 SPEED = 5
-
+room2_initialized = False
 # Load assets once
 start_background = pygame.image.load("assets/images/start_background.jpg").convert()
 start_background = pygame.transform.scale(start_background, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
@@ -45,6 +45,7 @@ room1_background = pygame.transform.scale(room1_background, (room1_background.ge
 nova = pygame.image.load("assets/characters/NOVA.png")
 nova = pygame.transform.scale(nova, (200, 200))  # Resize to 200x200 pixels
 original_spritesheet = pygame.image.load(f"assets/characters/{character}.png").convert_alpha()  # Load the spritesheet
+room2_background = pygame.image.load("assets/images/room_two-background.png").convert()
 
 # Ensure scaled sheet has enough space for all frames and directions
 scaled_width = TARGET_FRAME_WIDTH * CHARACTER_NUM_FRAMES
@@ -252,7 +253,7 @@ while running:
 
         # Draw the buttons and check if clicked
         if draw_button("Start", crop_rect.centerx-125, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
-            room = "cutscene"  # Proceed to the first room
+            room = "room2"  # Proceed to the first room
             start = True
         if draw_button("Work Cited", crop_rect.centerx-125, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
             room = "work cited"  # Go to the work cited room
@@ -465,6 +466,74 @@ while running:
             charecter_frame_index = (charecter_frame_index + 1) % CHARACTER_NUM_FRAMES
             charecter_frame_timer = 0
 
+        current_frame = frames[direction][charecter_frame_index]
+        SCALE_FACTOR = 2.5
+        scaled_width = current_frame.get_width() * SCALE_FACTOR
+        scaled_height = current_frame.get_height() * SCALE_FACTOR
+        scaled_frame = pygame.transform.scale(current_frame, (scaled_width, scaled_height))
+        screen.blit(scaled_frame, (x, y))
+        
+    # Room 2 logic
+    elif room == "room2":
+        scaledrm2 = pygame.transform.scale(room2_background, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        screen.blit(scaledrm2, (0, 0))
+
+        # Initialize spawn position only once
+        if not room2_initialized:
+            room2_initialized = True
+            x = 0  # Leftmost edge
+            y = SCREEN_HEIGHT - 190  # Bottom edge (adjusted for character height)
+            print(f"Initial character position in room2: x = {x}, y = {y}")
+
+        # Define boundaries for Room 2
+        ROOM2_X_MIN = 0
+        ROOM2_X_MAX = SCREEN_WIDTH - 200  # Adjust based on character width (ensure it stays within bounds)
+        ROOM2_Y_MIN = 0
+        ROOM2_Y_MAX = SCREEN_HEIGHT - 190  # Adjust based on character height to leave room for movement
+
+        # Handle movement input
+        keys = pygame.key.get_pressed()
+
+        # Move horizontally and vertically based on keys pressed
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            x += SPEED
+            direction = 1  # RIGHT
+        elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
+            x -= SPEED
+            direction = 3  # LEFT
+        elif keys[pygame.K_UP] or keys[pygame.K_w]:
+            y -= SPEED
+            direction = 2  # UP
+            print(f"Moving UP: y = {y}")  # Debugging vertical movement
+        elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
+            y += SPEED
+            direction = 0  # DOWN
+            print(f"Moving DOWN: y = {y}")  # Debugging vertical movement
+        else:
+            direction = 0  # Default to DOWN
+
+        # Debugging: Track the movement of the character
+        print(f"Before clamping: x = {x}, y = {y}")
+
+        # Apply clamping after movement
+        if x < ROOM2_X_MIN:
+            x = ROOM2_X_MIN
+        elif x > ROOM2_X_MAX:
+            x = ROOM2_X_MAX
+
+        if y < ROOM2_Y_MIN:
+            y = ROOM2_Y_MIN
+        elif y > ROOM2_Y_MAX:
+            y = ROOM2_Y_MAX
+
+
+        # Update frame based on timer
+        charecter_frame_timer += clock.get_time()
+        if charecter_frame_timer > FRAME_RATE:
+            charecter_frame_index = (charecter_frame_index + 1) % CHARACTER_NUM_FRAMES
+            charecter_frame_timer = 0
+
+        # Ensure current_frame is not None
         current_frame = frames[direction][charecter_frame_index]
         SCALE_FACTOR = 2.5
         scaled_width = current_frame.get_width() * SCALE_FACTOR
