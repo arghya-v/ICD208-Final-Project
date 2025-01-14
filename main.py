@@ -8,6 +8,32 @@ pygame.display.set_caption("Escape The Algorithm")
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 
+# Load assets once
+start_background = pygame.image.load("assets/images/start_background.jpg").convert()
+start_background = pygame.transform.scale(start_background, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+door_sheet = pygame.image.load("assets/images/start-door.png").convert_alpha()
+door_sheet = pygame.transform.scale(door_sheet, (door_sheet.get_width() * 8, door_sheet.get_height() * 9))
+door_sheet_scaled = pygame.transform.scale(door_sheet, (door_sheet.get_width() // 4, door_sheet.get_height() // 4))
+workscited_background = pygame.image.load("assets/images/scroll.png").convert_alpha()
+workscited_background = pygame.transform.scale(workscited_background, (SCREEN_WIDTH, SCREEN_HEIGHT - 80))
+cutscene_background = pygame.image.load("assets/images/cut_scene-background.png").convert()
+cutscene_background = pygame.transform.scale(cutscene_background, (SCREEN_WIDTH, SCREEN_HEIGHT))
+room1_background = pygame.image.load("assets/images/room_one-background.png").convert()
+room1_background = pygame.transform.scale(room1_background, (room1_background.get_width()/6, SCREEN_HEIGHT))
+nova = pygame.image.load("assets/characters/NOVA.png")
+nova = pygame.transform.scale(nova, (200, 200))  # Resize to 200x200 pixels
+original_spritesheet = pygame.image.load(f"assets/characters/1.png").convert_alpha()  # Load the spritesheet
+book_inside = pygame.image.load("assets/images/room_one-book_inside.png").convert_alpha()
+book_inside = pygame.transform.scale(book_inside, (SCREEN_WIDTH, SCREEN_HEIGHT))
+pedistal = pygame.image.load("assets/images/room_one-pedistal.png").convert_alpha()
+pedistal = pygame.transform.scale(pedistal, (SCREEN_WIDTH / 8, SCREEN_HEIGHT / 3))
+book = pygame.image.load("assets/images/room_one-book.png").convert_alpha()
+book = pygame.transform.scale(book, (SCREEN_WIDTH / 8.3, SCREEN_HEIGHT / 8.3))
+key = pygame.image.load("assets/images/key.png").convert_alpha()
+key = pygame.transform.scale(key, ((SCREEN_WIDTH * 0.7)/1.75, SCREEN_HEIGHT * 0.7))
+room2_background = pygame.image.load("assets/images/room_two-background.png").convert()
+computer = pygame.image.load("assets/images/room2computer.png").convert_alpha()
+
 # Initialize variables
 room = "start"
 start = True
@@ -30,23 +56,8 @@ linecount = 0 # Used to add space between lines on help and works cited page.
 SCALE_FACTOR = 8  # Scaling factor for the character Scale up the character size by 2x
 time_cutscene = 0 # Used to time the cutscene
 SPEED = 5
-room2_initialized = False
-# Load assets once
-start_background = pygame.image.load("assets/images/start_background.jpg").convert()
-start_background = pygame.transform.scale(start_background, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
-door_sheet = pygame.image.load("assets/images/start-door.png").convert_alpha()
-door_sheet = pygame.transform.scale(door_sheet, (door_sheet.get_width() * 8, door_sheet.get_height() * 9))
-workscited_background = pygame.image.load("assets/images/scroll.png").convert_alpha()
-workscited_background = pygame.transform.scale(workscited_background, (SCREEN_WIDTH, SCREEN_HEIGHT - 80))
-cutscene_background = pygame.image.load("assets/images/cut_scene-background.png").convert()
-cutscene_background = pygame.transform.scale(cutscene_background, (SCREEN_WIDTH, SCREEN_HEIGHT))
-room1_background = pygame.image.load("assets/images/room_one-background.png").convert()
-room1_background = pygame.transform.scale(room1_background, (room1_background.get_width()/6, SCREEN_HEIGHT))
-nova = pygame.image.load("assets/characters/NOVA.png")
-nova = pygame.transform.scale(nova, (200, 200))  # Resize to 200x200 pixels
-original_spritesheet = pygame.image.load(f"assets/characters/{character}.png").convert_alpha()  # Load the spritesheet
-room2_background = pygame.image.load("assets/images/room_two-background.png").convert()
-computer = pygame.image.load("assets/images/room2computer.png").convert_alpha()
+haskey = False
+room2_completed = False
 
 # Ensure scaled sheet has enough space for all frames and directions
 scaled_width = TARGET_FRAME_WIDTH * CHARACTER_NUM_FRAMES
@@ -165,7 +176,7 @@ def draw_button(button_text, x, y, color, hover_color, width, height=50, textCol
     return False
 
 def room_start():
-    global start
+    global start, x, y, start_frame_index
     if not start:
         return  # Skip processing if `start` is False
 
@@ -179,7 +190,9 @@ def room_start():
             "help": "assets/bgm/bgm-extra.mp3",
             "cutscene": "assets/bgm/bgm-cut_scene.mp3",
             "room1": "assets/bgm/bgm-room_one.mp3",
+            "book": "assets/bgm/bgm-room_one.mp3",
             "room2": "assets/bgm/bgm-room_two.mp3",
+            "computer": "assets/bgm/bgm-room_two.mp3",
             "room3": "assets/bgm/bgm-room_three.mp3",
         }
 
@@ -191,6 +204,12 @@ def room_start():
             pygame.mixer.music.play(-1, 0.0, 4000) # set to 6000ms for cleaner fade after we have fade to black set up
         
         start = False
+    if room == "cutscene":
+        start_frame_index = 0
+    if room == "room1":
+        x, y = -50, SCREEN_HEIGHT - 190
+    elif room == "room2":
+        x, y = 0, SCREEN_HEIGHT - 190
 
 # Main game loop
 running = True
@@ -256,7 +275,7 @@ while running:
 
         # Draw the buttons and check if clicked
         if draw_button("Start", crop_rect.centerx-125, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
-            room = "room2"  # Proceed to the first room
+            room = "cutscene"  # Proceed to the first room
             start = True
         if draw_button("Work Cited", crop_rect.centerx-125, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
             room = "work cited"  # Go to the work cited room
@@ -430,9 +449,44 @@ while running:
         
     elif room == "room1":
         screen.blit(room1_background, (0,0))
+        if not haskey:
+            simple_text("WASD/Arrow keys to move.", 20, 20)
+        if haskey:
+            simple_text("Click on the door to use the key.", 20, 20)
+            if y < 410:
+                simple_text("Use key.", 485, 250)
+            
+            # Door animation logic
+            door_sheet_scaled = pygame.transform.scale(door_sheet, (door_sheet.get_width() // 4, door_sheet.get_height() // 4))
+            door_frame_width = door_sheet_scaled.get_width() // START_NUM_FRAMES
+            door_frame_height = door_sheet_scaled.get_height()
+            door_pos = (470, 290)  # Adjust to position the door in Room 1
 
+            # Calculate the crop rect for the current frame
+            crop_rect = pygame.Rect(
+                start_frame_index * door_frame_width, 0, 
+                door_frame_width, door_frame_height
+            )
+
+            # Extract the current frame
+            current_door_frame = door_sheet_scaled.subsurface(crop_rect)
+
+            # Draw the current frame
+            screen.blit(current_door_frame, door_pos)
+
+            # Check if the mouse is over the door
+            mouse_pos = pygame.mouse.get_pos()
+            door_rect = pygame.Rect(door_pos[0], door_pos[1], door_frame_width, door_frame_height)
+
+            if pygame.mouse.get_pressed()[0]:  # Check for left mouse button click
+                if door_rect.collidepoint(mouse_pos):
+                    if haskey:
+                        room = "room2"  # Go to the second room when the door is clicked
+                        start = True
+                        room_start()
+            
         ROOM1_X_MIN = -100
-        ROOM1_X_MAX = SCREEN_WIDTH - 135
+        ROOM1_X_MAX = SCREEN_WIDTH-pedistal.get_width()-150
         ROOM1_Y_MAX = SCREEN_HEIGHT - 190
         if x > 380 and x < 490:
             ROOM1_Y_MIN = 270
@@ -475,6 +529,60 @@ while running:
         scaled_height = current_frame.get_height() * SCALE_FACTOR
         scaled_frame = pygame.transform.scale(current_frame, (scaled_width, scaled_height))
         screen.blit(scaled_frame, (x, y))
+
+        screen.blit(pedistal, (SCREEN_WIDTH-pedistal.get_width()-50, SCREEN_HEIGHT-pedistal.get_height()))
+        screen.blit(book, (SCREEN_WIDTH-pedistal.get_width()-50, SCREEN_HEIGHT-pedistal.get_height()-book.get_height()+20))
+        if x > SCREEN_WIDTH-pedistal.get_width()-300:
+            simple_text("E to open book.", SCREEN_WIDTH-pedistal.get_width()-75, (SCREEN_HEIGHT-pedistal.get_height())-book.get_height()-20)
+            if pygame.key.get_pressed()[pygame.K_e]:
+                room = "book"
+                start = False
+        
+    if room == "book":
+        screen.blit(room1_background, (0, 0))
+        screen.blit(book_inside, (0, 0))
+        if not haskey:
+            screen.blit(key, (400, 100))
+
+        simple_text("ESC to go back, Click key to collect", 10, 0)
+        if draw_button("Back", 10, SCREEN_HEIGHT-40, pygame.Color("gray67"), pygame.Color("gray50"), 100, 30, "white", 30):
+            room = "room1"
+            start = False
+
+        book_text_surface = Titlefont.render("AI 101:", True, pygame.Color("black"))
+        book_text_rect = book_text_surface.get_rect(centerx=245, centery=50)
+        screen.blit(book_text_surface, book_text_rect)
+        book_text_surface = Titlefont.render("A Beginner’s Guide", True, pygame.Color("black"))
+        book_text_rect = book_text_surface.get_rect(centerx=245, centery=50+Titlefont.get_height())
+        screen.blit(book_text_surface, book_text_rect)
+
+        book_text_surface = font.render("Remember to read carefully.", True, pygame.Color("black"))
+        book_text_rect = book_text_surface.get_rect(centerx=800-235, centery=50)
+        screen.blit(book_text_surface, book_text_rect)
+        book_text_surface = font.render("You will need this later.", True, pygame.Color("black"))
+        book_text_rect = book_text_surface.get_rect(centerx=800-235, centery=50+font.get_height())
+        screen.blit(book_text_surface, book_text_rect)
+
+
+        book_bodytext = ["What is AI?",
+                            "Artificial Intelligence (AI) is the development of machines capable of performing tasks that require human-like intelligence, such as recognizing patterns, solving problems, and making decisions. AI relies on vast amounts of data, algorithms, and powerful hardware like GPUs and cloud computing to learn and adapt. From virtual assistants to self-driving cars, AI is transforming how we live and work.",
+                            " ", " ", " ", " ", " ", " ", " ", " ", " ", "Ethics and Challenges",
+                            "While AI offers immense potential, it raises ethical concerns such as bias, privacy, and accountability. For example, an AI trained on biased data may make unfair decisions, and, black box, AI systems can be hard to explain. Dilemmas like programming self-driving cars to make life-or-death choices highlight the complexity of AI's impact on society. Understanding these challenges is crucial to building a responsible future with AI."]
+        linecount = 0
+        for line in book_bodytext:
+            draw_textbox(line, book_inside.get_rect().x+100, 100+Bodyfont.get_height()*linecount, False, Bodyfont, 265, "black", 30)
+            linecount += 1
+        
+        key_rect = pygame.Rect(400, 100, key.get_width(), key.get_height())
+
+        if pygame.event.get(pygame.MOUSEBUTTONDOWN):
+            if key_rect.collidepoint(pygame.mouse.get_pos()):
+                haskey = True
+
+        if pygame.event.get(pygame.KEYDOWN):
+            if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+                room = "room1"  # Go back to the start when escape is
+                start = False
         
     # Room 2 logic
     elif room == "room2":
@@ -482,12 +590,12 @@ while running:
         scaledpc = pygame.transform.scale(computer, (200, 200))
         screen.blit(scaledrm2, (0, 0))
         screen.blit(scaledpc, (400, 325))
-
-        # Initialize spawn position only once
-        if not room2_initialized:
-            room2_initialized = True
-            x = 0  # Leftmost edge
-            y = SCREEN_HEIGHT - 190  # Bottom edge (adjusted for character height)
+        if room2_completed:
+            # Show door and key
+            a = 0
+        if haskey:
+            #le code to show the door
+            a = 0
 
         # Define boundaries for Room 2
         ROOM2_X_MIN = 0
@@ -553,11 +661,13 @@ while running:
             simple_text("Press E to interact", 520, 300)
         if keys[pygame.K_e] and distance < INTERACT_DISTANCE:
             room = "computer"  
+            start = False
 
     elif room == "computer":
         screen.fill((0, 0, 255))  
         if draw_button("Back", 20, 25, "azure4", "gray24", 100, 30, "white", 20):
             room = "room2"  # Go back to room2
+            start = False
 
     for event in pygame.event.get():
         if event.type == QUIT:
