@@ -312,7 +312,7 @@ while running:
 
         # Draw the buttons and check if clicked
         if draw_button("Start", crop_rect.centerx-125, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
-            room = "end"  # Proceed to the first room
+            room = "room1"  # Proceed to the first room
             start = True
         if draw_button("Work Cited", crop_rect.centerx-125, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
             room = "work cited"  # Go to the work cited room
@@ -938,12 +938,20 @@ while running:
         screen.blit(box, (600,200))
         screen.blit(box, (550,250))
         screen.blit(scaled3, (0,0))
+        simple_text("Make your choice:", 300, 450)
+        if draw_button("SUV", 75, 500, "crimson", "darkred", 200, 60, "white", 36):
+            room = "end1"  # Go back to room2 when escape is pressed
+            start = False
+        if draw_button("MOTORBIKE", 300, 500, "darkgoldenrod1", "darkgoldenrod3", 200, 60, "white", 34):
+            room = "end2"  # Go back to room2 when escape is pressed
+            start = False
+        if draw_button("TRUCK", 525, 500, "blue3", "blue4", 200, 60, "white", 36):
+            room = "end3"  # Go back to room2 when escape is pressed
+            start = False
 
-        if pygame.event.get(pygame.MOUSEBUTTONDOWN):
-            room = "end"  # Go back to room2 when escape is pressed
-            start = True
+        
 
-    if room == "end":
+    if room == "end1":
         end_time += clock.get_time()
         if end_time < 4000:
             screen.fill((0, 0, 0))
@@ -953,7 +961,47 @@ while running:
         if end_time < 4000:
             draw_textbox("You crashed.", 255, 250, False, extraTitlefont, 400, "red")
         elif end_time > 4001 and end_time < 10000:
-            draw_textbox("You chose to prioritize minimizing harm. This decision saved lives but raised questions about fairness.", 210, 100)
+            draw_textbox("You chose to play the middle ground by bumping into the SUV with a high-safety rating. This decision saved lives but raised questions about fairness.", 210, 100)
+            screen.blit(nova, (0, 50))
+        elif end_time > 10001 and end_time < 19000:
+            draw_textbox("Ethics in AI is not about perfect answers—it’s about thoughtful questions. You’ve done well to navigate this challenge.", 210, 100)
+            screen.blit(nova, (0, 50))
+        elif end_time > 19001 and end_time < 26000:
+            draw_textbox("Congratulations. You’ve completed the escape room and learned the essentials of AI: its power, its limitations, and its ethical complexities. Use this knowledge wisely to shape the future.", 125, 300)
+            screen.blit(nova, (520-nova.get_rect().width, 55))
+        elif end_time > 26001:
+            a = 0
+    if room == "end2":
+        end_time += clock.get_time()
+        if end_time < 4000:
+            screen.fill((0, 0, 0))
+        elif end_time > 4001:
+            screen.blit(end_screen_background, (0, 0))
+
+        if end_time < 4000:
+            draw_textbox("You crashed.", 255, 250, False, extraTitlefont, 400, "red")
+        elif end_time > 4001 and end_time < 10000:
+            draw_textbox("You chose to prioritize your own personal safety, even though it meant sacrificing others. This decision saved lives but raised questions about fairness.", 210, 100)
+            screen.blit(nova, (0, 50))
+        elif end_time > 10001 and end_time < 19000:
+            draw_textbox("Ethics in AI is not about perfect answers—it’s about thoughtful questions. You’ve done well to navigate this challenge.", 210, 100)
+            screen.blit(nova, (0, 50))
+        elif end_time > 19001 and end_time < 26000:
+            draw_textbox("Congratulations. You’ve completed the escape room and learned the essentials of AI: its power, its limitations, and its ethical complexities. Use this knowledge wisely to shape the future.", 125, 300)
+            screen.blit(nova, (520-nova.get_rect().width, 55))
+        elif end_time > 26001:
+            a = 0
+    if room == "end3":
+        end_time += clock.get_time()
+        if end_time < 4000:
+            screen.fill((0, 0, 0))
+        elif end_time > 4001:
+            screen.blit(end_screen_background, (0, 0))
+
+        if end_time < 4000:
+            draw_textbox("You crashed.", 255, 250, False, extraTitlefont, 400, "red")
+        elif end_time > 4001 and end_time < 10000:
+            draw_textbox("You chose to prioritize minimizing harm, even though it can end your life. This decision saved lives but raised questions about fairness.", 210, 100)
             screen.blit(nova, (0, 50))
         elif end_time > 10001 and end_time < 19000:
             draw_textbox("Ethics in AI is not about perfect answers—it’s about thoughtful questions. You’ve done well to navigate this challenge.", 210, 100)
