@@ -176,7 +176,7 @@ def draw_button(button_text, x, y, color, hover_color, width, height=50, textCol
     return False
 
 def room_start():
-    global start, x, y, start_frame_index
+    global start, x, y, start_frame_index, haskey, room2_completed
     if not start:
         return  # Skip processing if `start` is False
 
@@ -206,10 +206,14 @@ def room_start():
         start = False
     if room == "cutscene":
         start_frame_index = 0
+        haskey = False
     if room == "room1":
         x, y = -50, SCREEN_HEIGHT - 190
+        haskey = False
+        room2_completed = False
     elif room == "room2":
         x, y = 0, SCREEN_HEIGHT - 190
+        haskey = False
 
 # Main game loop
 running = True
@@ -532,7 +536,7 @@ while running:
 
         screen.blit(pedistal, (SCREEN_WIDTH-pedistal.get_width()-50, SCREEN_HEIGHT-pedistal.get_height()))
         screen.blit(book, (SCREEN_WIDTH-pedistal.get_width()-50, SCREEN_HEIGHT-pedistal.get_height()-book.get_height()+20))
-        if x > SCREEN_WIDTH-pedistal.get_width()-300:
+        if x > SCREEN_WIDTH-pedistal.get_width()-300 and y > 390:
             simple_text("E to open book.", SCREEN_WIDTH-pedistal.get_width()-75, (SCREEN_HEIGHT-pedistal.get_height())-book.get_height()-20)
             if pygame.key.get_pressed()[pygame.K_e]:
                 room = "book"
@@ -575,8 +579,8 @@ while running:
         
         key_rect = pygame.Rect(400, 100, key.get_width(), key.get_height())
 
-        if pygame.event.get(pygame.MOUSEBUTTONDOWN):
-            if key_rect.collidepoint(pygame.mouse.get_pos()):
+        if key_rect.collidepoint(pygame.mouse.get_pos()):
+            if pygame.event.get(pygame.MOUSEBUTTONDOWN):
                 haskey = True
 
         if pygame.event.get(pygame.KEYDOWN):
@@ -591,11 +595,46 @@ while running:
         screen.blit(scaledrm2, (0, 0))
         screen.blit(scaledpc, (400, 325))
         if room2_completed:
-            # Show door and key
-            a = 0
-        if haskey:
-            #le code to show the door
-            a = 0
+            if not haskey:
+                key = pygame.transform.scale(key, (30, 50))
+                screen.blit(key, (320, 300))
+                simple_text("Click the key to collect.", 20, 20)
+
+                key_rect = pygame.Rect(320, 300, key.get_width(), key.get_height())
+
+                if key_rect.collidepoint(pygame.mouse.get_pos()):
+                    if pygame.event.get(pygame.MOUSEBUTTONDOWN):
+                        haskey = True
+            # Door animation logic
+            door_sheet_scaled = pygame.transform.scale(door_sheet, (door_sheet.get_width() // 4, door_sheet.get_height() // 4))
+            door_frame_width = door_sheet_scaled.get_width() // START_NUM_FRAMES
+            door_frame_height = door_sheet_scaled.get_height()
+            door_pos = (175, 320)  # Adjust to position the door in Room 2
+
+            # Calculate the crop rect for the current frame
+            crop_rect = pygame.Rect(
+                start_frame_index * door_frame_width, 0, 
+                door_frame_width, door_frame_height
+            )
+
+            # Extract the current frame
+            current_door_frame = door_sheet_scaled.subsurface(crop_rect)
+
+            # Draw the current frame
+            screen.blit(current_door_frame, door_pos)
+
+            # Check if the mouse is over the door
+            mouse_pos = pygame.mouse.get_pos()
+            door_rect = pygame.Rect(door_pos[0], door_pos[1], door_frame_width, door_frame_height)
+
+            if pygame.mouse.get_pressed()[0]:  # Check for left mouse button click
+                if door_rect.collidepoint(mouse_pos):
+                    if haskey and room2_completed:
+                        room = "room3"  # Go to the third room when the door is clicked
+                        start = True
+                        room_start()
+        if haskey and room2_completed:
+            simple_text("Click on the door to use the key.", 20, 20)
 
         # Define boundaries for Room 2
         ROOM2_X_MIN = 0
@@ -664,10 +703,14 @@ while running:
             start = False
 
     elif room == "computer":
-        screen.fill((0, 0, 255))  
+        screen.fill((0, 0, 255))
         if draw_button("Back", 20, 25, "azure4", "gray24", 100, 30, "white", 20):
             room = "room2"  # Go back to room2
+            room2_completed = True
             start = False
+    
+    elif room == "room3":
+        screen.fill((0, 0, 255))
 
     for event in pygame.event.get():
         if event.type == QUIT:
