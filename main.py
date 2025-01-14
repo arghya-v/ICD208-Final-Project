@@ -179,6 +179,8 @@ def room_start():
             "help": "assets/bgm/bgm-extra.mp3",
             "cutscene": "assets/bgm/bgm-cut_scene.mp3",
             "room1": "assets/bgm/bgm-room_one.mp3",
+            "room2": "assets/bgm/bgm-room_two.mp3",
+            "room3": "assets/bgm/bgm-room_three.mp3",
         }
 
         # Only load and play music if the room has a valid music file
@@ -523,7 +525,6 @@ while running:
         elif y > ROOM2_Y_MAX:
             y = ROOM2_Y_MAX
 
-        
         charecter_frame_timer += clock.get_time()
         if charecter_frame_timer > FRAME_RATE:
             charecter_frame_index = (charecter_frame_index + 1) % CHARACTER_NUM_FRAMES
@@ -549,28 +550,14 @@ while running:
         # Check if the character is close to the computer
         INTERACT_DISTANCE = 60  # Adjust based on desired range
         if distance < INTERACT_DISTANCE:
-            # Render "E to interact" text
-            font = pygame.font.Font(None, 36)  
-            interact_text = font.render("E to interact", True, (255, 255, 255))  
-            text_rect = interact_text.get_rect(topright=(SCREEN_WIDTH - 20, 20)) 
-            screen.blit(interact_text, text_rect)
+            simple_text("Press E to interact", 520, 300)
         if keys[pygame.K_e] and distance < INTERACT_DISTANCE:
             room = "computer"  
 
     elif room == "computer":
         screen.fill((0, 0, 255))  
-        buttonfont = pygame.font.Font(None, 36)
-        back_button_text = buttonfont.render("Back", True, (255, 255, 255))  # White text
-        back_button_rect = pygame.Rect(20, 25, 100, 50)  # x, y, width, height
-        pygame.draw.rect(screen, (200, 0, 0), back_button_rect)  # Red background
-        screen.blit(back_button_text, (back_button_rect.x + 10, back_button_rect.y + 10))  # Add padding for text
-
-        # Check for mouse click on the Back button
-        for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()  # Get mouse position
-                if back_button_rect.collidepoint(mouse_pos):  # Check if clicked on Back button
-                    room = "room2"  # Go back to room2
+        if draw_button("Back", 20, 25, "azure4", "gray24", 100, 30, "white", 20):
+            room = "room2"  # Go back to room2
 
     for event in pygame.event.get():
         if event.type == QUIT:
