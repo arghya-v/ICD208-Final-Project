@@ -33,6 +33,28 @@ key = pygame.image.load("assets/images/key.png").convert_alpha()
 key = pygame.transform.scale(key, ((SCREEN_WIDTH * 0.7)/1.75, SCREEN_HEIGHT * 0.7))
 room2_background = pygame.image.load("assets/images/room_two-background.png").convert()
 computer = pygame.image.load("assets/images/room2computer.png").convert_alpha()
+room3 = pygame.image.load("assets/images/room_three-background.png")
+room3main = pygame.image.load('assets/images/room_three-inner_background.png')
+suv = pygame.image.load('assets/images/room_three-suv.png')
+truck = pygame.image.load('assets/images/room_three-truck.png')
+box = pygame.image.load('assets/images/boxes.png')
+motor = pygame.image.load('assets/images/room_three-motorcycle.png')
+image_one = pygame.image.load('assets/images/room_two-people/1.png').convert()
+image_two = pygame.image.load('assets/images/room_two-people/2.png').convert()
+image_three = pygame.image.load('assets/images/room_two-people/3.png').convert()
+image_four = pygame.image.load('assets/images/room_two-people/4.png').convert()
+image_five = pygame.image.load('assets/images/room_two-people/5.png').convert()
+image_six = pygame.image.load('assets/images/room_two-people/6.png').convert()
+image_seven = pygame.image.load('assets/images/room_two-people/7.png').convert()
+image_eight = pygame.image.load('assets/images/room_two-people/8.png').convert()
+image_one = pygame.transform.scale(image_one, (600, 400))
+image_two = pygame.transform.scale(image_two, (600, 400))
+image_three = pygame.transform.scale(image_three, (600, 400))
+image_four = pygame.transform.scale(image_four, (600, 400))
+image_five = pygame.transform.scale(image_five, (600, 400))
+image_six = pygame.transform.scale(image_six, (600, 400))
+image_seven = pygame.transform.scale(image_seven, (600, 400))
+image_eight = pygame.transform.scale(image_eight, (600, 400))
 
 # Initialize variables
 room = "start"
@@ -56,6 +78,13 @@ linecount = 0 # Used to add space between lines on help and works cited page.
 SCALE_FACTOR = 8  # Scaling factor for the character Scale up the character size by 2x
 time_cutscene = 0 # Used to time the cutscene
 SPEED = 5
+room1_completed = 0
+qOne_done = False
+qTwo_done = False
+qThree_done = False
+book_page = 0
+computer_page = 0
+computer_wrong = False
 haskey = False
 room2_completed = False
 
@@ -67,6 +96,7 @@ spritesheet = pygame.transform.scale(original_spritesheet, (scaled_width, scaled
 # Load fonts
 Titlefont = pygame.font.SysFont("Comic Sans", 25, bold=True)
 Titlefont.set_underline(True)
+extraTitlefont = pygame.font.SysFont("Comic Sans", 40, bold=True)
 Bodyfont = pygame.font.SysFont("arial", 15)
 font = pygame.font.SysFont("monospace", 18)
 novaFont = pygame.font.SysFont("monospace", 36, bold=True)
@@ -279,7 +309,7 @@ while running:
 
         # Draw the buttons and check if clicked
         if draw_button("Start", crop_rect.centerx-125, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
-            room = "cutscene"  # Proceed to the first room
+            room = "room2"  # Proceed to the first room
             start = True
         if draw_button("Work Cited", crop_rect.centerx-125, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
             room = "work cited"  # Go to the work cited room
@@ -460,6 +490,7 @@ while running:
             if y < 410:
                 simple_text("Use key.", 485, 250)
             
+            start_frame_index = 0
             # Door animation logic
             door_sheet_scaled = pygame.transform.scale(door_sheet, (door_sheet.get_width() // 4, door_sheet.get_height() // 4))
             door_frame_width = door_sheet_scaled.get_width() // START_NUM_FRAMES
@@ -490,7 +521,7 @@ while running:
                         room_start()
             
         ROOM1_X_MIN = -100
-        ROOM1_X_MAX = SCREEN_WIDTH-pedistal.get_width()-150
+        ROOM1_X_MAX = SCREEN_WIDTH-pedistal.get_width()-170
         ROOM1_Y_MAX = SCREEN_HEIGHT - 190
         if x > 380 and x < 490:
             ROOM1_Y_MIN = 270
@@ -537,7 +568,7 @@ while running:
         screen.blit(pedistal, (SCREEN_WIDTH-pedistal.get_width()-50, SCREEN_HEIGHT-pedistal.get_height()))
         screen.blit(book, (SCREEN_WIDTH-pedistal.get_width()-50, SCREEN_HEIGHT-pedistal.get_height()-book.get_height()+20))
         if x > SCREEN_WIDTH-pedistal.get_width()-300 and y > 390:
-            simple_text("E to open book.", SCREEN_WIDTH-pedistal.get_width()-75, (SCREEN_HEIGHT-pedistal.get_height())-book.get_height()-20)
+            simple_text("E to open book.", SCREEN_WIDTH-pedistal.get_width()-90, (SCREEN_HEIGHT-pedistal.get_height())-book.get_height()-20)
             if pygame.key.get_pressed()[pygame.K_e]:
                 room = "book"
                 start = False
@@ -545,48 +576,140 @@ while running:
     if room == "book":
         screen.blit(room1_background, (0, 0))
         screen.blit(book_inside, (0, 0))
-        if not haskey:
-            screen.blit(key, (400, 100))
 
-        simple_text("ESC to go back, Click key to collect", 10, 0)
+        if book_page == 2 and room1_completed == 3:
+            simple_text("ESC to go back, Click key to collect, QW to chnage pages", 10, 0)
+        else:
+            simple_text("ESC to go back, QW to chnage pages", 10, 0)
         if draw_button("Back", 10, SCREEN_HEIGHT-40, pygame.Color("gray67"), pygame.Color("gray50"), 100, 30, "white", 30):
             room = "room1"
             start = False
 
-        book_text_surface = Titlefont.render("AI 101:", True, pygame.Color("black"))
-        book_text_rect = book_text_surface.get_rect(centerx=245, centery=50)
-        screen.blit(book_text_surface, book_text_rect)
-        book_text_surface = Titlefont.render("A Beginner’s Guide", True, pygame.Color("black"))
-        book_text_rect = book_text_surface.get_rect(centerx=245, centery=50+Titlefont.get_height())
-        screen.blit(book_text_surface, book_text_rect)
+        if draw_button("Next Page", 600, 535, pygame.Color("gray67"), pygame.Color("gray50"), 100, 20, "white", 15):
+            book_page += 1
+            if book_page > 1:
+                book_page = 1
+        if draw_button("Previous Page", 100, 530, pygame.Color("gray67"), pygame.Color("gray50"), 100, 20, "white", 12):
+            book_page -= 1
+            if book_page < 0:
+                book_page = 0
 
-        book_text_surface = font.render("Remember to read carefully.", True, pygame.Color("black"))
-        book_text_rect = book_text_surface.get_rect(centerx=800-235, centery=50)
-        screen.blit(book_text_surface, book_text_rect)
-        book_text_surface = font.render("You will need this later.", True, pygame.Color("black"))
-        book_text_rect = book_text_surface.get_rect(centerx=800-235, centery=50+font.get_height())
-        screen.blit(book_text_surface, book_text_rect)
+        if book_page == 0:
+            book_text_surface = Titlefont.render("AI 101:", True, pygame.Color("black"))
+            book_text_rect = book_text_surface.get_rect(centerx=245, centery=50)
+            screen.blit(book_text_surface, book_text_rect)
+            book_text_surface = Titlefont.render("A Beginner’s Guide", True, pygame.Color("black"))
+            book_text_rect = book_text_surface.get_rect(centerx=245, centery=50+Titlefont.get_height())
+            screen.blit(book_text_surface, book_text_rect)
+
+            book_text_surface = font.render("Remember to read carefully.", True, pygame.Color("black"))
+            book_text_rect = book_text_surface.get_rect(centerx=800-235, centery=50)
+            screen.blit(book_text_surface, book_text_rect)
+            book_text_surface = font.render("You will need this later.", True, pygame.Color("black"))
+            book_text_rect = book_text_surface.get_rect(centerx=800-235, centery=50+font.get_height())
+            screen.blit(book_text_surface, book_text_rect)
+
+            book_bodytext = ["What is AI?",
+                                "Artificial Intelligence (AI) is like giving computers the ability to think and solve problems, just like humans. AI helps machines recognize patterns, make decisions, and even talk to us, like when you ask a virtual assistant for help. To make AI work, scientists use huge amounts of data and special computer tools like GPUs (graphics processing units) that process information really quickly. AI can learn new things by practicing over and over, just like we do when we study for a test!"]
+            linecount = 0
+            for line in book_bodytext:
+                draw_textbox(line, book_inside.get_rect().x+75, 100+Bodyfont.get_height()*linecount, False, Bodyfont, 250, "black", 60)
+                linecount += 1
+            
+            book_bodytext = ["How AI Works", " ",
+                                "AI is inspired by how our brains work. Inside our brains, we have billions of tiny cells called neurons that pass messages to each other. Scientists created artificial neurons to help computers learn in a similar way. These neurons work together in networks, helping AI figure out things like recognizing your face in photos or recommending a new video game you might like. All this happens using powerful hardware and lots of data to train the AI to think.",
+                                " ", " ", " ", " ", " ", " ", " ", " ", " ", " ",
+                                "Why AI Matters", " ",
+                                "AI is super helpful, but it’s important to use it responsibly. If we don’t use enough good, fair data to teach an AI, it might make mistakes, like being unfair or making bad predictions. Sometimes, AI has to solve tricky problems, like deciding how a self-driving car should react in a dangerous situation. These are called ethical dilemmas, and they show why we need to think carefully about how we use AI. By learning about AI now, you can help shape a future where it makes life better for everyone!"]
+            linecount = 0
+            for line in book_bodytext:
+                draw_textbox(line, book_inside.get_rect().x+350, 30+Bodyfont.get_height()*linecount, False, Bodyfont, 300, "black", 60)
+                linecount += 1
+
+        if book_page == 1:
+            if qOne_done:
+                draw_textbox("AI can solve problems and learn new things by practicing, just like humans.", 100, 50, False, font, 250, "darkgreen")
+                if draw_button("True", 120, 150, pygame.Color("darkgreen"), pygame.Color("gray50"), 110, 25, "white", 20):
+                    a = 0
+            else:
+                draw_textbox("AI can solve problems and learn new things by practicing, just like humans.", 100, 50, False, font, 250, "black")
+                if draw_button("True", 120, 150, pygame.Color("gray67"), pygame.Color("gray50"), 110, 25, "white", 20):
+                    qOne_done = True
+                    room1_completed += 1
+                elif draw_button("False", 240, 150, pygame.Color("gray67"), pygame.Color("gray50"), 110, 25, "white", 20):
+                    if draw_button("False", 240, 150, pygame.Color("red"), pygame.Color("red"), 110, 25, "white", 20):
+                        a= 0
+                    draw_textbox("AI can solve problems and learn new things by practicing, just like humans.", 100, 50, False, font, 250, "red")
+                    pygame.display.update()
+                    pygame.time.wait(1000)
+            
+            if qTwo_done:
+                draw_textbox("What part of the human brain inspired AI?", 100, 200, False, font, 250, "darkgreen")
+                if draw_button("Neurons", 290, 260, pygame.Color("darkgreen"), pygame.Color("gray50"), 80, 20, "white", 15):
+                    a = 0
+            else:
+                draw_textbox("What part of the human brain inspired AI?", 100, 200, False, font, 250, "black")
+                if draw_button("Muscles", 110, 260, pygame.Color("gray67"), pygame.Color("gray50"), 80, 20, "white", 15):
+                    if draw_button("Muscles", 110, 260, pygame.Color("red"), pygame.Color("red"), 80, 20, "white", 15):
+                        a = 0
+                    draw_textbox("What part of the human brain inspired AI?", 100, 200, False, font, 250, "red")
+                    pygame.display.update()
+                    pygame.time.wait(1000)
+                elif draw_button("Bones", 200, 260, pygame.Color("gray67"), pygame.Color("gray50"), 80, 20, "white", 15):
+                    if draw_button("Bones", 200, 260, pygame.Color("red"), pygame.Color("red"), 80, 20, "white", 15):
+                        a = 0
+                    draw_textbox("What part of the human brain inspired AI?", 100, 200, False, font, 250, "red")
+                    pygame.display.update()
+                    pygame.time.wait(1000)
+                elif draw_button("Neurons", 290, 260, pygame.Color("gray67"), pygame.Color("gray50"), 80, 20, "white", 15):
+                    qTwo_done = True
+                    room1_completed += 1
+                
+            
+            if qThree_done:
+                draw_textbox("Which of the following are ethical dilemmas that AI might face?", 100, 300, False, font, 250, "darkgreen")
+                if draw_button("Self-driving car reacts in an accident", 110, 420, pygame.Color("darkgreen"), pygame.Color("gray50"), 260, 30, "white", 11):
+                    a = 0
+            else:
+                draw_textbox("Which of the following are ethical dilemmas that AI might face?", 100, 300, False, font, 250, "black")
+                if draw_button("Recognizing patterns in data", 110, 380, pygame.Color("gray67"), pygame.Color("gray50"), 260, 30, "white", 15):
+                    if draw_button("Recognizing patterns in data", 110, 380, pygame.Color("red"), pygame.Color("red"), 260, 30, "white", 15):
+                        a = 0
+                    draw_textbox("Which of the following are ethical dilemmas that AI might face?", 100, 300, False, font, 250, "red")
+                    pygame.display.update()
+                    pygame.time.wait(1000)
+                elif draw_button("Self-driving car reacts in an accident", 110, 420, pygame.Color("gray67"), pygame.Color("gray50"), 260, 30, "white", 11):
+                    qThree_done = True
+                    room1_completed += 1
+                elif draw_button("Picking your cereal for you.", 110, 460, pygame.Color("gray67"), pygame.Color("gray50"), 260, 30, "white", 15):
+                    if draw_button("Picking your cereal for you.", 110, 460, pygame.Color("red"), pygame.Color("red"), 260, 30, "white", 15):
+                        a = 0
+                    draw_textbox("Which of the following are ethical dilemmas that AI might face?", 100, 300, False, font, 250, "red")
+                    pygame.display.update()
+                    pygame.time.wait(1000)
+            
 
 
-        book_bodytext = ["What is AI?",
-                            "Artificial Intelligence (AI) is the development of machines capable of performing tasks that require human-like intelligence, such as recognizing patterns, solving problems, and making decisions. AI relies on vast amounts of data, algorithms, and powerful hardware like GPUs and cloud computing to learn and adapt. From virtual assistants to self-driving cars, AI is transforming how we live and work.",
-                            " ", " ", " ", " ", " ", " ", " ", " ", " ", "Ethics and Challenges",
-                            "While AI offers immense potential, it raises ethical concerns such as bias, privacy, and accountability. For example, an AI trained on biased data may make unfair decisions, and, black box, AI systems can be hard to explain. Dilemmas like programming self-driving cars to make life-or-death choices highlight the complexity of AI's impact on society. Understanding these challenges is crucial to building a responsible future with AI."]
-        linecount = 0
-        for line in book_bodytext:
-            draw_textbox(line, book_inside.get_rect().x+100, 100+Bodyfont.get_height()*linecount, False, Bodyfont, 265, "black", 30)
-            linecount += 1
-        
-        key_rect = pygame.Rect(400, 100, key.get_width(), key.get_height())
+            if room1_completed == 3 and not haskey:
+                key_rect = pygame.Rect(400, 100, key.get_width(), key.get_height())
+                screen.blit(key, (400, 100))
 
-        if key_rect.collidepoint(pygame.mouse.get_pos()):
-            if pygame.event.get(pygame.MOUSEBUTTONDOWN):
-                haskey = True
+                if key_rect.collidepoint(pygame.mouse.get_pos()):
+                    if pygame.event.get(pygame.MOUSEBUTTONDOWN):
+                        haskey = True
 
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_ESCAPE]:
                 room = "room1"  # Go back to the start when escape is
                 start = False
+            elif pygame.key.get_pressed()[pygame.K_q]:
+                book_page -= 1
+                if book_page < 0:
+                    book_page = 0
+            elif pygame.key.get_pressed()[pygame.K_w]:
+                book_page += 1
+                if book_page > 1:
+                    book_page = 1
         
     # Room 2 logic
     elif room == "room2":
@@ -606,6 +729,7 @@ while running:
                     if pygame.event.get(pygame.MOUSEBUTTONDOWN):
                         haskey = True
             # Door animation logic
+            start_frame_index = 0
             door_sheet_scaled = pygame.transform.scale(door_sheet, (door_sheet.get_width() // 4, door_sheet.get_height() // 4))
             door_frame_width = door_sheet_scaled.get_width() // START_NUM_FRAMES
             door_frame_height = door_sheet_scaled.get_height()
@@ -707,10 +831,61 @@ while running:
         if draw_button("Back", 20, 25, "azure4", "gray24", 100, 30, "white", 20):
             room = "room2"  # Go back to room2
             room2_completed = True
-            start = False
+
+        if computer_page == 0:
+            draw_textbox("Welcome to the computer. Here you can add data to the data set.", 250, 100, True, font, 300, "White")
+            draw_textbox("You can also discard data from the data set.", 250, 250, True, font, 300, "White")
+            draw_textbox("Make sure the data is diverse and represents everyone.", 250, 400, True, font, 300, "White")
+            pygame.display.update()
+            pygame.time.wait(10)
+            pygame.time.wait(2000)
+            computer_page += 1
+        
+        if computer_page == 1:
+            screen.blit(image_one, (100, 100))
+            if draw_button("Add to data set.", 50, 550, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
+                computer_page = 2
+        
+            if draw_button("Discard from data.", 450, 550, "brown4", "brown3", 300, 35, "white", 20):
+                room = "inncorrect"
+
+        if computer_page == 2:
+            screen.blit(image_two, (100, 100))
+            if draw_button("Add to data set.", 50, 550, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
+                computer_page += 1
+
+            if draw_button("Discard from data.", 450, 550, "brown4", "brown3", 300, 35, "white", 20):
+                room = "inncorrect"
+
+        """
+        if draw_button("Add to data set.", 50, 550, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
+            computer_page += 1
+        
+        if draw_button("Discard from data.", 450, 550, "brown4", "brown3", 300, 35, "white", 20):
+            room = "inncorrect"
+        """        
+
+    elif room == "inncorrect":
+        screen.fill((0, 0, 0))
+        draw_textbox("Incorrect. Try again.", 200, 150, False, extraTitlefont, 500, "red")
+        pygame.display.update()
+        pygame.time.wait(10)
+        pygame.time.wait(2000)
+        room = "room2"
+        start = False
     
     elif room == "room3":
-        screen.fill((0, 0, 255))
+        scaled3 = pygame.transform.scale(room3, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        mainbg = pygame.transform.scale(room3main, (SCREEN_WIDTH,SCREEN_HEIGHT))
+        scaledsuv = pygame.transform.scale(suv, (300,300) )
+        scaledtruck = pygame.transform.scale(truck, (800,800))
+        screen.blit(mainbg, (0,0))
+        screen.blit(scaledsuv, (100,220))
+        screen.blit(scaledtruck, (180,-30))
+        screen.blit(motor,(220,220))
+        screen.blit(box, (600,200))
+        screen.blit(box, (550,250))
+        screen.blit(scaled3, (0,0))
 
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -720,4 +895,5 @@ while running:
     clock.tick(30)
 
 pygame.quit()
+
 sys.exit()
