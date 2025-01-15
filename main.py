@@ -332,14 +332,14 @@ while running:
         scaled_y = game_config.y - (scaled_height - current_frame.get_height()) // 2
         screen.blit(scaled_frame, (scaled_x, scaled_y))
 
-        simple_text("Q or W to change characters", 10, 455)
+        simple_text("Q or E to change characters", 10, 455)
 
         for event in pygame.event.get(pygame.KEYDOWN):
             if event.key == pygame.K_q:
                 game_config.character -= 1
                 if game_config.character < 1:
                     game_config.character = 10
-            elif event.key == pygame.K_w:
+            elif event.key == pygame.K_e:
                 game_config.character += 1
                 if game_config.character > 10:
                     game_config.character = 1
