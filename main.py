@@ -214,10 +214,22 @@ def draw_button(button_text, x, y, color, hover_color, width, height=50, textCol
 
     return False
 
+def fade(width, height): 
+    fade = pygame.Surface((width, height))
+    fade.fill((0,0,0))
+    for alpha in range(0, 300):
+        fade.set_alpha(alpha)
+        screen.blit(fade, (0,0))
+        pygame.display.update()
+        pygame.time.delay(5)
+
 def room_start():
     global game_config
     if not game_config.start:
         return  # Skip processing if `start` is False
+
+    if game_config.room == "room2" or game_config.room == "room3":
+        fade(800,600)
 
     if pygame.mixer.music.get_busy():
         pygame.mixer.music.fadeout(200) # set to 1000ms after we have fade for cleaner fade_out
@@ -597,9 +609,9 @@ while running:
         screen.blit(game_config.book_inside, (0, 0))
 
         if game_config.book_page == 1 and game_config.room1_completed == 3:
-            simple_text("ESC to go back, Click key to collect, QW to chnage pages", 10, 0)
+            simple_text("ESC to go back, Click key to collect, QW to change pages", 10, 0)
         else:
-            simple_text("ESC to go back, QW to chnage pages", 10, 0)
+            simple_text("ESC to go back, QW to change pages", 10, 0)
         if draw_button("Back", 10, SCREEN_HEIGHT-40, pygame.Color("gray67"), pygame.Color("gray50"), 100, 30, "white", 30):
             game_config.room = "room1"
             game_config.start = False
@@ -849,8 +861,9 @@ while running:
 
     elif game_config.room == "computer":
         screen.fill((0, 0, 255))
-        if draw_button("Back", 20, 25, "azure4", "gray24", 100, 30, "white", 20):
+        if draw_button("Back", 20, 550, "azure4", "gray24", 100, 30, "white", 20):
             game_config.room = "room2"  # Go back to room2
+        simple_text("Esc to leave the room.", 20, 20)
 
         if game_config.computer_page == 0:
             draw_textbox("Welcome to the computer. Here you can add data to the data set.", 250, 100, True, game_config.font, 300, "White")
@@ -862,16 +875,16 @@ while running:
             game_config.computer_page = 1
         
         if game_config.computer_page == 1:
-            screen.blit(game_config.people_images[0], (100, 100))
-            if draw_button("Add to data set.", 50, 550, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
+            screen.blit(game_config.people_images[0], (100, 75))
+            if draw_button("Add to data set.", 50, 500, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 game_config.computer_page = 2
         
-            if draw_button("Discard from data.", 450, 550, "brown4", "brown3", 300, 35, "white", 20):
+            if draw_button("Discard from data.", 450, 500, "brown4", "brown3", 300, 35, "white", 20):
                 game_config.room = "inncorrect"
 
 
         if game_config.computer_page == 2:
-            screen.blit(game_config.people_images[1], (100, 150))
+            screen.blit(game_config.people_images[1], (100, 120))
             if draw_button("Add to data set.", 50, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 game_config.room = "inncorrect"
                 
@@ -880,15 +893,15 @@ while running:
 
 
         if game_config.computer_page == 3:
-            screen.blit(game_config.people_images[2], (100, 100))
-            if draw_button("Add to data set.", 50, 550, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
+            screen.blit(game_config.people_images[2], (100, 75))
+            if draw_button("Add to data set.", 50, 500, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 game_config.computer_page = 4
         
-            if draw_button("Discard from data.", 450, 550, "brown4", "brown3", 300, 35, "white", 20):
+            if draw_button("Discard from data.", 450, 500, "brown4", "brown3", 300, 35, "white", 20):
                 game_config.room = "inncorrect"
 
         if game_config.computer_page == 4:
-            screen.blit(game_config.people_images[3], (100, 150))
+            screen.blit(game_config.people_images[3], (100, 120))
             if draw_button("Add to data set.", 50, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 game_config.computer_page = 5
 
@@ -896,15 +909,15 @@ while running:
                 game_config.room = "inncorrect"
 
         if game_config.computer_page == 5:
-            screen.blit(game_config.people_images[4], (100, 100))
-            if draw_button("Add to data set.", 50, 550, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
+            screen.blit(game_config.people_images[4], (100, 75))
+            if draw_button("Add to data set.", 50, 500, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 game_config.room = "inncorrect"
         
-            if draw_button("Discard from data.", 450, 550, "brown4", "brown3", 300, 35, "white", 20):
+            if draw_button("Discard from data.", 450, 500, "brown4", "brown3", 300, 35, "white", 20):
                 game_config.computer_page = 6
 
         if game_config.computer_page == 6:
-            screen.blit(game_config.people_images[5], (100, 150))
+            screen.blit(game_config.people_images[5], (100, 120))
             if draw_button("Add to data set.", 50, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 game_config.room = "inncorrect"
 
@@ -912,15 +925,15 @@ while running:
                 game_config.computer_page = 7
 
         if game_config.computer_page == 7:
-            screen.blit(game_config.people_images[6], (100, 100))
-            if draw_button("Add to data set.", 50, 550, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
+            screen.blit(game_config.people_images[6], (100, 75))
+            if draw_button("Add to data set.", 50, 500, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 game_config.room = "inncorrect"
 
-            if draw_button("Discard from data.", 450, 550, "brown4", "brown3", 300, 35, "white", 20):
+            if draw_button("Discard from data.", 450, 500, "brown4", "brown3", 300, 35, "white", 20):
                 game_config.computer_page = 8
         
         if game_config.computer_page == 8:
-            screen.blit(game_config.people_images[7], (100, 150))
+            screen.blit(game_config.people_images[7], (100, 120))
             if draw_button("Add to data set.", 50, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 game_config.room = "inncorrect"
             if draw_button("Discard from data.", 450, 75, "brown4", "brown3", 300, 35, "white", 20):
@@ -996,13 +1009,13 @@ while running:
                 pygame.display.update()
                 pygame.time.wait(100)
             if draw_button("Play Again", 275, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
+                game_config = GameConfig()
                 game_config.room = "cutscene"  # Go to the cutscene
                 game_config.start = True
-                game_config = GameConfig()
             if draw_button("Works Cited", 275, 390, pygame.Color("lightgreen"), pygame.Color("green"), 250, 50):
+                game_config = GameConfig()
                 game_config.room = "work cited"  # Go to the works cited
                 game_config.start = True
-                game_config = GameConfig()
         
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_SPACE]:
@@ -1036,13 +1049,13 @@ while running:
                 pygame.display.update()
                 pygame.time.wait(100)
             if draw_button("Play Again", 275, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
+                game_config = GameConfig()
                 game_config.room = "cutscene"  # Go to the cutscene
                 game_config.start = True
-                game_config = GameConfig()
             if draw_button("Works Cited", 275, 390, pygame.Color("lightgreen"), pygame.Color("green"), 250, 50):
+                game_config = GameConfig()
                 game_config.room = "work cited"  # Go to the works cited
                 game_config.start = True
-                game_config = GameConfig()
 
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_SPACE]:
@@ -1076,13 +1089,13 @@ while running:
                 pygame.display.update()
                 pygame.time.wait(100)
             if draw_button("Play Again", 275, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
+                game_config = GameConfig()
                 game_config.room = "cutscene"  # Go to the cutscene
                 game_config.start = True
-                game_config = GameConfig()
             if draw_button("Works Cited", 275, 390, pygame.Color("lightgreen"), pygame.Color("green"), 250, 50):
+                game_config = GameConfig()
                 game_config.room = "work cited"  # Go to the works cited
                 game_config.start = True
-                game_config = GameConfig()
 
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_SPACE]:
