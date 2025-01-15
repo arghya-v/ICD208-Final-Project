@@ -485,19 +485,19 @@ while running:
             scaled_frame = pygame.transform.scale(current_frame, (scaled_width, scaled_height))
             screen.blit(scaled_frame, (550, -100))
 
-        elif game_config.time_cutscene > 12001 and game_config.time_cutscene < 22000:
+        elif game_config.time_cutscene > 12001 and game_config.time_cutscene < 24000:
             draw_textbox("Good morning, Player. I am NOVA, your Artificial Intelligence guide. Welcome to the escape room. Your mission is to solve puzzles and challenges, all while learning about the wonders—and risks—of AI. Failure to succeed will leave you here... indefinitely.", 210, 100)
             screen.blit(game_config.nova, (0, 75))
 
-        elif game_config.time_cutscene > 22500 and game_config.time_cutscene < 27000:
+        elif game_config.time_cutscene > 24500 and game_config.time_cutscene < 29000:
             draw_textbox("Wait... what? Is this some kind of joke?", 20, 100)
             screen.blit(scaled_frame, (550, -100))
         
-        elif game_config.time_cutscene > 27500 and game_config.time_cutscene < 31000:
+        elif game_config.time_cutscene > 29500 and game_config.time_cutscene < 33000:
             draw_textbox("I assure you, this is no joke. Let us begin. Your first task awaits.", 210, 100)
             screen.blit(game_config.nova, (0, 40))
         
-        elif game_config.time_cutscene > 31200:
+        elif game_config.time_cutscene > 33200:
             game_config.room = "room1"  # Proceed to the first room
             game_config.start = True
             game_config.time_cutscene = 0
@@ -506,17 +506,16 @@ while running:
             if pygame.key.get_pressed()[pygame.K_SPACE]:
                 game_config.room = "room1"  # Go to the first room when space is pressed
                 game_config.start = True
-                game_config.time_cutscene = 0
         
     elif game_config.room == "room1":
         screen.blit(game_config.room1_background, (0,0))
         if not game_config.haskey:
             simple_text("WASD/Arrow keys to move.", 20, 20)
             game_config.room1timeOne += clock.get_time()
-            if game_config.room1timeOne < 6000:
+            if game_config.room1timeOne < 7000:
                 draw_textbox("Before you proceed, you must understand the basics of Artificial Intelligence. Open the book on the pedistal.", 210, 100)
                 screen.blit(game_config.nova, (0, 50))
-            elif game_config.room1timeOne > 6001 and game_config.room1timeOne < 10000:
+            elif game_config.room1timeOne > 7001 and game_config.room1timeOne < 11000:
                 draw_textbox("Guess I don’t have much of a choice...", 20, 100)
                 screen.blit(scaled_frame, (560, -15))
         if game_config.haskey:
@@ -771,16 +770,16 @@ while running:
         
         if not game_config.room2_completed:
             game_config.room2timeOne += clock.get_time()
-            if game_config.room2timeOne < 9500:
+            if game_config.room2timeOne < 10000:
                 draw_textbox("Machine learning relies on data to train algorithms. However, biased data leads to biased predictions. Select a diverse and unbiased dataset to train this AI model.", 210, 100)
                 screen.blit(game_config.nova, (0, 50))
-            elif game_config.room2timeOne > 9501 and game_config.room2timeOne < 15000:
+            elif game_config.room2timeOne > 10001 and game_config.room2timeOne < 15500:
                 draw_textbox("How do I know if it’s unbiased?", 20, 100)
                 screen.blit(scaled_frame, (560, -15))
-            elif game_config.room2timeOne > 15001 and game_config.room2timeOne < 20500:
+            elif game_config.room2timeOne > 15501 and game_config.room2timeOne < 21000:
                 draw_textbox("Consider: Does this dataset represent all possible users and scenarios? Think carefully.", 210, 100)
                 screen.blit(game_config.nova, (0, 40))
-            elif game_config.room2timeOne > 20501 and game_config.room2timeOne < 26000:
+            elif game_config.room2timeOne > 21001 and game_config.room2timeOne < 27000:
                 draw_textbox("Make sure the image has a diversity in RACE and AGE.", 210, 100)
                 screen.blit(game_config.nova, (0, 40))
         else:
@@ -1144,22 +1143,22 @@ while running:
             screen.blit(game_config.end_screen_background, (0, 0))
         
         if draw_button("Skip", 20, 550, "azure4", "gray24", 100, 30, "white", 30):
-            game_config.end_time = 27000
+            game_config.end_time = 29000
 
         simple_text("Space to skip", 20, 20, "black", "white")
 
         if game_config.end_time < 4000:
             draw_textbox("You crashed.", 255, 250, False, game_config.extraTitlefont, 400, "red")
-        elif game_config.end_time > 4001 and game_config.end_time < 10000:
+        elif game_config.end_time > 4001 and game_config.end_time < 11000:
             draw_textbox("You chose to prioritize minimizing harm, even though it can end your life. This decision saved lives but raised questions about fairness.", 210, 100)
             screen.blit(game_config.nova, (0, 50))
-        elif game_config.end_time > 10001 and game_config.end_time < 19000:
+        elif game_config.end_time > 11001 and game_config.end_time < 20000:
             draw_textbox("Ethics in AI is not about perfect answers—it’s about thoughtful questions. You’ve done well to navigate this challenge.", 210, 100)
             screen.blit(game_config.nova, (0, 50))
-        elif game_config.end_time > 19001 and game_config.end_time < 26000:
+        elif game_config.end_time > 20001 and game_config.end_time < 28000:
             draw_textbox("Congratulations. You’ve completed the escape room and learned the essentials of AI: its power, its limitations, and its ethical complexities. Use this knowledge wisely to shape the future.", 125, 300)
             screen.blit(game_config.nova, (520-game_config.nova.get_rect().width, 55))
-        elif game_config.end_time > 26001:
+        elif game_config.end_time > 28001:
             if draw_button("Main Menu", 275, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
                 game_config.room = "start"  # Proceed to the start room
                 game_config.start = True
@@ -1178,7 +1177,7 @@ while running:
 
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_SPACE]:
-                game_config.end_time = 27000
+                game_config.end_time = 29000
         
     for event in pygame.event.get():
         if event.type == QUIT:
