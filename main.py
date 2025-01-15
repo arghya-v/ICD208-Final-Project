@@ -520,9 +520,14 @@ while running:
                 draw_textbox("Guess I don’t have much of a choice...", 20, 100)
                 screen.blit(scaled_frame, (550, -10))
         if game_config.haskey:
-            simple_text("Click on the door to use the key.", 20, 20)
+            simple_text("Click on the door (or E) to use the key.", 20, 20)
             if game_config.y < 390:
-                simple_text("Use key.", 485, 250)
+                simple_text("Click (or E) to Use key.", 400, 250)
+                if pygame.key.get_pressed()[pygame.K_e]:
+                    if game_config.haskey:
+                        game_config.room = "room2"  # Go to the second room when 'E' is pressed
+                        game_config.start = True
+                        room_start()
         
             game_config.room1timeTwo += clock.get_time()
             if game_config.room1timeTwo < 6000:
@@ -807,8 +812,16 @@ while running:
                         game_config.start = True
                         room_start()
         
-        if game_config.haskey and game_config.room2_completed:
-            simple_text("Click on the door to use the key.", 20, 20)
+        if game_config.haskey:
+            simple_text("Click on the door (or E) to use the key.", 20, 20)
+        
+        if game_config.x < 250 and game_config.haskey:
+            simple_text("Click (or E) to Use key.", 95, 290)
+            if pygame.event.get(pygame.KEYDOWN):
+                if pygame.key.get_pressed()[pygame.K_e]:
+                    game_config.room = "room3"  # Go to the third room when the door is clicked
+                    game_config.start = True
+                    room_start()
 
         # Define boundaries for Room 2
         ROOM2_X_MIN = 0
@@ -869,7 +882,7 @@ while running:
                     (computer_center_y - character_center_y) ** 2) ** 0.5
 
         # Check if the character is close to the computer
-        INTERACT_DISTANCE = 60  # Adjust based on desired range
+        INTERACT_DISTANCE = 65  # Adjust based on desired range
         if distance < INTERACT_DISTANCE:
             simple_text("Press E to interact", 520, 300)
         if keys[pygame.K_e] and distance < INTERACT_DISTANCE:
