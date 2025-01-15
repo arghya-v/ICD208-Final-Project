@@ -105,6 +105,94 @@ font = pygame.font.SysFont("monospace", 18)
 novaFont = pygame.font.SysFont("monospace", 36, bold=True)
 scrnfont = pygame.font.SysFont("monospace", 18, bold=True)
 
+# Combine the provided code in a class for encapsulation
+class GameConfig:
+    def __init__(self):
+        # Screen dimensions and frame rate
+        self.SCREEN_WIDTH, self.SCREEN_HEIGHT = 800, 600
+        pygame.display.set_caption("Escape The Algorithm")
+        self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        self.clock = pygame.time.Clock()
+
+        # Load assets once
+        self.start_background = pygame.image.load("assets/images/start_background.jpg").convert()
+        self.start_background = pygame.transform.scale(self.start_background, (self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2))
+        self.door_sheet = pygame.image.load("assets/images/start-door.png").convert_alpha()
+        self.door_sheet = pygame.transform.scale(self.door_sheet, (self.door_sheet.get_width() * 8, self.door_sheet.get_height() * 9))
+        self.door_sheet_scaled = pygame.transform.scale(self.door_sheet, (self.door_sheet.get_width() // 4, self.door_sheet.get_height() // 4))
+        self.workscited_background = pygame.image.load("assets/images/scroll.png").convert_alpha()
+        self.workscited_background = pygame.transform.scale(self.workscited_background, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT - 80))
+        self.cutscene_background = pygame.image.load("assets/images/cut_scene-background.png").convert()
+        self.cutscene_background = pygame.transform.scale(self.cutscene_background, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        self.room1_background = pygame.image.load("assets/images/room_one-background.png").convert()
+        self.room1_background = pygame.transform.scale(self.room1_background, (self.room1_background.get_width()/6, self.SCREEN_HEIGHT))
+        self.nova = pygame.image.load("assets/characters/NOVA.png")
+        self.nova = pygame.transform.scale(self.nova, (200, 200))  # Resize to 200x200 pixels
+
+        # Load character spritesheet
+        self.original_spritesheet = pygame.image.load("assets/characters/1.png").convert_alpha()
+        self.spritesheet = pygame.transform.scale(self.original_spritesheet, (
+            80 * 4, 80 * 4))  # Ensure scaled sheet has enough space for all frames and directions
+
+        # Other assets
+        self.book_inside = pygame.image.load("assets/images/room_one-book_inside.png").convert_alpha()
+        self.book_inside = pygame.transform.scale(self.book_inside, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        self.pedistal = pygame.image.load("assets/images/room_one-pedistal.png").convert_alpha()
+        self.pedistal = pygame.transform.scale(self.pedistal, (self.SCREEN_WIDTH / 8, self.SCREEN_HEIGHT / 3))
+        self.book = pygame.image.load("assets/images/room_one-book.png").convert_alpha()
+        self.book = pygame.transform.scale(self.book, (self.SCREEN_WIDTH / 8.3, self.SCREEN_HEIGHT / 8.3))
+        self.key = pygame.image.load("assets/images/key.png").convert_alpha()
+        self.key = pygame.transform.scale(self.key, ((self.SCREEN_WIDTH * 0.7)/1.75, self.SCREEN_HEIGHT * 0.7))
+        self.room2_background = pygame.image.load("assets/images/room_two-background.png").convert()
+        self.computer = pygame.image.load("assets/images/room2computer.png").convert_alpha()
+
+        # Images for room two people
+        self.people_images = []
+        for i in range(1, 9):
+            image = pygame.image.load(f'assets/images/room_two-people/{i}.png').convert()
+            self.people_images.append(pygame.transform.scale(image, (600, 400)))
+
+        # End screen background
+        self.end_screen_background = pygame.image.load('assets/images/end-background.png').convert()
+        self.end_screen_background = pygame.transform.scale(self.end_screen_background, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+
+        # Fonts
+        self.Titlefont = pygame.font.SysFont("Comic Sans", 25, bold=True)
+        self.Titlefont.set_underline(True)
+        self.extraTitlefont = pygame.font.SysFont("Comic Sans", 40, bold=True)
+        self.Bodyfont = pygame.font.SysFont("arial", 15)
+        self.font = pygame.font.SysFont("monospace", 18)
+        self.novaFont = pygame.font.SysFont("monospace", 36, bold=True)
+        self.scrnfont = pygame.font.SysFont("monospace", 18, bold=True)
+
+        # Initialize variables
+        self.room = "start"
+        self.start = True
+        self.start_frame_index = 0
+        self.start_frame_timer = 0
+        self.START_NUM_FRAMES = 4
+        self.running_forward = True
+        self.nova_name = "NOVA"
+        self.x, self.y = 10, 590
+        self.direction = 3
+        self.charecter_frame_index = 0
+        self.charecter_frame_timer = 0
+        self.linecount = 0
+        self.SPEED = 5
+        self.room1_completed = 0
+        self.qOne_done = False
+        self.qTwo_done = False
+        self.qThree_done = False
+        self.book_page = 0
+        self.computer_page = 0
+        self.computer_wrong = False
+        self.haskey = False
+        self.room2_completed = False
+        self.end_time = 0
+
+# Instantiate the class
+game_config = GameConfig()
+
 # Simple textbox for giving what key to use for something
 def simple_text(text, x, y, colour="black", back_colour="white"):
     # Render instructions text with a white box behind it
@@ -225,7 +313,9 @@ def room_start():
             "room1": "assets/bgm/bgm-room_one.mp3",
             "room2": "assets/bgm/bgm-room_two.mp3",
             "room3": "assets/bgm/bgm-room_three.mp3",
-            "end": "assets/bgm/bgm-end_screen.mp3"
+            "end1": "assets/bgm/bgm-end_screen.mp3",
+            "end2": "assets/bgm/bgm-end_screen.mp3",
+            "end3": "assets/bgm/bgm-end_screen.mp3"
         }
 
         # Only load and play music if the room has a valid music file
@@ -312,7 +402,7 @@ while running:
 
         # Draw the buttons and check if clicked
         if draw_button("Start", crop_rect.centerx-125, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
-            room = "cutscene"  # Proceed to the first room
+            room = "room2"  # Proceed to the first room
             start = True
         if draw_button("Work Cited", crop_rect.centerx-125, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
             room = "work cited"  # Go to the work cited room
@@ -580,7 +670,7 @@ while running:
         screen.blit(room1_background, (0, 0))
         screen.blit(book_inside, (0, 0))
 
-        if book_page == 2 and room1_completed == 3:
+        if book_page == 1 and room1_completed == 3:
             simple_text("ESC to go back, Click key to collect, QW to chnage pages", 10, 0)
         else:
             simple_text("ESC to go back, QW to chnage pages", 10, 0)
@@ -844,7 +934,7 @@ while running:
             computer_page += 1
         
         if computer_page == 1:
-            screen.blit(image_one, (100, 100))
+            screen.blit(game_config.people_images[0], (100, 100))
             if draw_button("Add to data set.", 50, 550, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 computer_page = 2
         
@@ -853,7 +943,7 @@ while running:
 
 
         if computer_page == 2:
-            screen.blit(image_two, (100, 150))
+            screen.blit(game_config.people_images[1], (100, 150))
             if draw_button("Add to data set.", 50, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 room = "inncorrect"
 
@@ -861,7 +951,7 @@ while running:
                 computer_page = 3
 
         if computer_page == 3:
-            screen.blit(image_three, (100, 100))
+            screen.blit(game_config.people_images[2], (100, 100))
             if draw_button("Add to data set.", 50, 550, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 computer_page = 4
         
@@ -869,7 +959,7 @@ while running:
                 room = "inncorrect"
 
         if computer_page == 4:
-            screen.blit(image_four, (100, 150))
+            screen.blit(game_config.people_images[5], (100, 150))
             if draw_button("Add to data set.", 50, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 computer_page = 5
 
@@ -877,7 +967,7 @@ while running:
                 room = "inncorrect"
 
         if computer_page == 5:
-            screen.blit(image_five, (100, 100))
+            screen.blit(game_config.people_images[6], (100, 100))
             if draw_button("Add to data set.", 50, 550, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 room = "inncorrect"
         
@@ -885,7 +975,7 @@ while running:
                 computer_page = 6
 
         if computer_page == 6:
-            screen.blit(image_six, (100, 150))
+            screen.blit(game_config.people_images[7], (100, 150))
             if draw_button("Add to data set.", 50, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 room = "inncorrect"
 
@@ -893,7 +983,7 @@ while running:
                 computer_page = 7
 
         if computer_page == 7:
-            screen.blit(image_seven, (100, 100))
+            screen.blit(game_config.people_images[8], (100, 100))
             if draw_button("Add to data set.", 50, 550, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 room = "inncorrect"
 
@@ -941,15 +1031,13 @@ while running:
         simple_text("Make your choice:", 300, 450)
         if draw_button("SUV", 75, 500, "crimson", "darkred", 200, 60, "white", 36):
             room = "end1"  # Go back to room2 when escape is pressed
-            start = False
+            start = True
         if draw_button("MOTORBIKE", 300, 500, "darkgoldenrod1", "darkgoldenrod3", 200, 60, "white", 34):
             room = "end2"  # Go back to room2 when escape is pressed
-            start = False
+            start = True
         if draw_button("TRUCK", 525, 500, "blue3", "blue4", 200, 60, "white", 36):
             room = "end3"  # Go back to room2 when escape is pressed
-            start = False
-
-        
+            start = True
 
     if room == "end1":
         end_time += clock.get_time()
@@ -971,6 +1059,7 @@ while running:
             screen.blit(nova, (520-nova.get_rect().width, 55))
         elif end_time > 26001:
             a = 0
+    
     if room == "end2":
         end_time += clock.get_time()
         if end_time < 4000:
@@ -991,12 +1080,15 @@ while running:
             screen.blit(nova, (520-nova.get_rect().width, 55))
         elif end_time > 26001:
             a = 0
+            
     if room == "end3":
         end_time += clock.get_time()
         if end_time < 4000:
             screen.fill((0, 0, 0))
         elif end_time > 4001:
             screen.blit(end_screen_background, (0, 0))
+        
+        simple_text("Space to skip", 20, 20, "black", "white")
 
         if end_time < 4000:
             draw_textbox("You crashed.", 255, 250, False, extraTitlefont, 400, "red")
@@ -1010,9 +1102,22 @@ while running:
             draw_textbox("Congratulations. You’ve completed the escape room and learned the essentials of AI: its power, its limitations, and its ethical complexities. Use this knowledge wisely to shape the future.", 125, 300)
             screen.blit(nova, (520-nova.get_rect().width, 55))
         elif end_time > 26001:
-            a = 0
-        
+            if draw_button("Main Menu", 275, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
+                room = "start"  # Proceed to the start room
+                start = True
+                pygame.display.update()
+                pygame.time.wait(100)
+            if draw_button("Play Again", 275, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
+                room = "cutscene"  # Go to the cutscene
+                start = True
+            if draw_button("Works Cited", 275, 390, pygame.Color("lightgreen"), pygame.Color("green"), 250, 50):
+                room = "work cited"  # Go to the works cited
+                start = True
 
+        if pygame.event.get(pygame.KEYDOWN):
+            if pygame.key.get_pressed()[pygame.K_SPACE]:
+                end_time = 27000
+        
     for event in pygame.event.get():
         if event.type == QUIT:
             running = False
