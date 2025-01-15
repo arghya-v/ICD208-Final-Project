@@ -780,9 +780,8 @@ while running:
             # Draw the current frame
             screen.blit(current_door_frame, door_pos)
 
-            # Check if the mouse is over the door
-            mouse_pos = pygame.mouse.get_pos()
-            door_rect = pygame.Rect(door_pos[0], door_pos[1], door_frame_width, door_frame_height)
+            if game_config.x < 200 and game_config.haskey and game_config.room2_completed:
+                simple_text("Click to use key.", 135, 280)
 
             if pygame.mouse.get_pressed()[0]:  # Check for left mouse button click
                 if door_rect.collidepoint(mouse_pos):
@@ -871,7 +870,7 @@ while running:
             draw_textbox("Make sure the data is diverse and represents everyone.", 250, 400, True, game_config.font, 300, "White")
             pygame.display.update()
             pygame.time.wait(10)
-            pygame.time.wait(8000)
+            pygame.time.wait(6000)
             game_config.computer_page = 1
         
         if game_config.computer_page == 1:
