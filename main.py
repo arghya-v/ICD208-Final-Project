@@ -777,17 +777,17 @@ while running:
             elif game_config.room2timeOne > 9501 and game_config.room2timeOne < 15000:
                 draw_textbox("How do I know if it’s unbiased?", 20, 100)
                 screen.blit(scaled_frame, (560, -15))
-            if game_config.room2timeOne > 15001 and game_config.room2timeOne < 20500:
+            elif game_config.room2timeOne > 15001 and game_config.room2timeOne < 20500:
                 draw_textbox("Consider: Does this dataset represent all possible users and scenarios? Think carefully.", 210, 100)
                 screen.blit(game_config.nova, (0, 40))
-            if game_config.room2timeOne > 20501 and game_config.room2timeOne < 26000:
+            elif game_config.room2timeOne > 20501 and game_config.room2timeOne < 26000:
                 draw_textbox("Make sure the image has a diversity in RACE and AGE.", 210, 100)
                 screen.blit(game_config.nova, (0, 40))
-            if game_config.room2_completed:
-                game_config.room2timeTwo += clock.get_time()
-                if game_config.room2timeTwo < 6000:
-                    draw_textbox("Well done. You've ensured the AI is trained responsibly. Let’s move on to the final challenge.", 210, 100)
-                    screen.blit(game_config.nova, (0, 50))
+        else:
+            game_config.room2timeTwo += clock.get_time()
+            if game_config.room2timeTwo < 6000:
+                draw_textbox("Well done. You've ensured the AI is trained responsibly. Let’s move on to the final challenge.", 210, 100)
+                screen.blit(game_config.nova, (0, 45))
 
         if not game_config.room2_completed:
             simple_text("WASD/Arrow keys to move.", 20, 20)
@@ -1020,6 +1020,23 @@ while running:
         screen.blit(game_config.box, (600,200))
         screen.blit(game_config.box, (550,250))
         screen.blit(scaled3, (0,0))
+
+        game_config.room3time += clock.get_time()
+        if game_config.room3time < 14000:
+            draw_textbox("You are now programming a self-driving car. A crash is imminent. You must decide how the car reacts: swerve left, hit the SUV; swerve right, hit the obect; or go straight and hit the motorcycle. Choose wisely.", 210, 100)
+            screen.blit(game_config.nova, (0, 55))
+        elif game_config.room3time > 14001 and game_config.room3time < 20000:
+            draw_textbox("How am I supposed to decide this?", 20, 100)
+            current_frame = frames[0][0]
+            SCALE_FACTOR = 4
+            scaled_width = current_frame.get_width() * SCALE_FACTOR
+            scaled_height = current_frame.get_height() * SCALE_FACTOR
+            scaled_frame = pygame.transform.scale(current_frame, (scaled_width, scaled_height))
+            screen.blit(scaled_frame, (560, -55))
+        elif game_config.room3time > 20001 and game_config.room3time < 27000:
+            draw_textbox("Ethical dilemmas like this are why programming AI is so challenging. Consider the outcomes and make your decision.", 210, 100)
+            screen.blit(game_config.nova, (0, 50))
+
         simple_text("Make your choice:", 300, 450)
         if draw_button("SUV", 75, 500, "crimson", "darkred", 200, 60, "white", 36):
             game_config.room = "end1"  # Go back to room2 when escape is pressed
