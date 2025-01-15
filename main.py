@@ -101,7 +101,8 @@ class GameConfig:
         self.room2_completed = False
         self.room1timeOne = 0
         self.room1timeTwo = 0
-        self.room2time = 0
+        self.room2timeOne = 0
+        self.room2timeTwo = 0
         self.room3time = 0
         self.end_time = 0
         self.time_cutscene = 0
@@ -194,7 +195,6 @@ def start_character():
     frames = extract_directional_frames(spritesheet, game_config.TARGET_FRAME_WIDTH, game_config.TARGET_FRAME_HEIGHT, game_config.CHARACTER_NUM_FRAMES, game_config.NUM_DIRECTIONS)
     return frames
 
-# Function to draw buttons with text size
 def draw_button(button_text, x, y, color, hover_color, width, height=50, textColour="white", text_size=36):
     button_rect = pygame.Rect(x, y, width, height)
     mouse_pos = pygame.mouse.get_pos()
@@ -276,7 +276,7 @@ def room_start():
 running = True
 while running:
     
-    screen.fill((0, 0, 0))  # Clear screen
+    screen.fill((0, 0, 0))
     room_start()
     game_config.direction = 0
 
@@ -422,13 +422,13 @@ while running:
     elif game_config.room == "cutscene":
         screen.blit(game_config.cutscene_background, (0, 0))
         simple_text("Space to skip cutscene.", 10, 10)
-        if draw_button("Skip", 20, SCREEN_HEIGHT-60, "azure4", "gray24", 100, 30, "white", 20):
+        if draw_button("Skip", 10, 560, "azure4", "gray24", 100, 30, "white", 20):
             game_config.room = "room1"
             game_config.start = True
 
         game_config.time_cutscene += clock.get_time()
 
-        if game_config.time_cutscene < 10000:
+        if game_config.time_cutscene < 8000:
             # Draw the text in room1
             draw_textbox("AI is taking over the world and has trapped you in its neural network", 
                         rect_x=200, rect_y=50, ifBackground=True, 
@@ -472,10 +472,10 @@ while running:
             nova_original = pygame.image.load("assets/characters/NOVA.png").convert_alpha()  # Load the nova image
             nova_scaled = pygame.transform.scale(nova_original, (200, 200))  # Scale the nova image to 200x200
             nova_x = 0  # Position x to align nova in the bottom-right
-            nova_y = 50  # Position y to align nova in the bottom-right
+            nova_y = 60  # Position y to align nova in the bottom-right
             screen.blit(nova_scaled, (nova_x, nova_y))  # Blit nova image
 
-        if game_config.time_cutscene > 10010 and game_config.time_cutscene < 14000:
+        if game_config.time_cutscene > 8001 and game_config.time_cutscene < 12000:
             draw_textbox("WHAT! Who are you? How do I escape?!", 20, 100)
 
             current_frame = frames[0][0]
@@ -485,19 +485,19 @@ while running:
             scaled_frame = pygame.transform.scale(current_frame, (scaled_width, scaled_height))
             screen.blit(scaled_frame, (550, -100))
 
-        elif game_config.time_cutscene > 14010 and game_config.time_cutscene < 23000:
+        elif game_config.time_cutscene > 12001 and game_config.time_cutscene < 22000:
             draw_textbox("Good morning, Player. I am NOVA, your Artificial Intelligence guide. Welcome to the escape room. Your mission is to solve puzzles and challenges, all while learning about the wonders—and risks—of AI. Failure to succeed will leave you here... indefinitely.", 210, 100)
             screen.blit(game_config.nova, (0, 75))
 
-        elif game_config.time_cutscene > 24500 and game_config.time_cutscene < 30000:
+        elif game_config.time_cutscene > 22500 and game_config.time_cutscene < 27000:
             draw_textbox("Wait... what? Is this some kind of joke?", 20, 100)
             screen.blit(scaled_frame, (550, -100))
         
-        elif game_config.time_cutscene > 31000 and game_config.time_cutscene < 35000:
+        elif game_config.time_cutscene > 27500 and game_config.time_cutscene < 31000:
             draw_textbox("I assure you, this is no joke. Let us begin. Your first task awaits.", 210, 100)
-            screen.blit(game_config.nova, (0, 25))
+            screen.blit(game_config.nova, (0, 40))
         
-        elif game_config.time_cutscene > 35200:
+        elif game_config.time_cutscene > 31200:
             game_config.room = "room1"  # Proceed to the first room
             game_config.start = True
             game_config.time_cutscene = 0
@@ -518,10 +518,10 @@ while running:
                 screen.blit(game_config.nova, (0, 50))
             elif game_config.room1timeOne > 6001 and game_config.room1timeOne < 10000:
                 draw_textbox("Guess I don’t have much of a choice...", 20, 100)
-                screen.blit(scaled_frame, (550, -10))
+                screen.blit(scaled_frame, (560, -15))
         if game_config.haskey:
-            simple_text("Click on the door (or E) to use the key.", 20, 20)
-            if game_config.y < 390:
+            simple_text("Go the the door to leave the room.", 20, 20)
+            if game_config.y < 340:
                 simple_text("Click (or E) to Use key.", 400, 250)
                 if pygame.key.get_pressed()[pygame.K_e]:
                     if game_config.haskey:
@@ -532,7 +532,7 @@ while running:
             game_config.room1timeTwo += clock.get_time()
             if game_config.room1timeTwo < 6000:
                 draw_textbox("Excellent. Now you know the basics. Prepare for the next challenge.", 210, 100)
-                screen.blit(game_config.nova, (0, 50))
+                screen.blit(game_config.nova, (0, 40))
 
             start_frame_index = 0
             # Door animation logic
@@ -630,9 +630,9 @@ while running:
         screen.blit(game_config.book_inside, (0, 0))
 
         if game_config.book_page == 1 and game_config.room1_completed == 3:
-            simple_text("ESC to go back, Click key to collect, QW to change pages", 10, 0)
+            simple_text("ESC to go back, Click key to collect, Q and E to change pages.", 10, 0)
         else:
-            simple_text("ESC to go back, QW to change pages", 10, 0)
+            simple_text("ESC to go back, Q and E to change pages.", 10, 0)
         if draw_button("Back", 10, SCREEN_HEIGHT-40, pygame.Color("gray67"), pygame.Color("gray50"), 100, 30, "white", 30):
             game_config.room = "room1"
             game_config.start = False
@@ -758,17 +758,37 @@ while running:
                 game_config.book_page -= 1
                 if game_config.book_page < 0:
                     game_config.book_page = 0
-            elif pygame.key.get_pressed()[pygame.K_w]:
+            elif pygame.key.get_pressed()[pygame.K_e]:
                 game_config.book_page += 1
                 if game_config.book_page > 1:
                     game_config.book_page = 1
         
-    # Room 2 logic
     elif game_config.room == "room2":
         scaledrm2 = pygame.transform.scale(game_config.room2_background, (SCREEN_WIDTH, SCREEN_HEIGHT))
         scaledpc = pygame.transform.scale(game_config.computer, (200, 200))
         screen.blit(scaledrm2, (0, 0))
         screen.blit(scaledpc, (400, 325))
+        
+        if not game_config.room2_completed:
+            game_config.room2timeOne += clock.get_time()
+            if game_config.room2timeOne < 9500:
+                draw_textbox("Machine learning relies on data to train algorithms. However, biased data leads to biased predictions. Select a diverse and unbiased dataset to train this AI model.", 210, 100)
+                screen.blit(game_config.nova, (0, 50))
+            elif game_config.room2timeOne > 9501 and game_config.room2timeOne < 15000:
+                draw_textbox("How do I know if it’s unbiased?", 20, 100)
+                screen.blit(scaled_frame, (560, -15))
+            if game_config.room2timeOne > 15001 and game_config.room2timeOne < 20500:
+                draw_textbox("Consider: Does this dataset represent all possible users and scenarios? Think carefully.", 210, 100)
+                screen.blit(game_config.nova, (0, 40))
+            if game_config.room2timeOne > 20501 and game_config.room2timeOne < 26000:
+                draw_textbox("Make sure the image has a diversity in RACE and AGE.", 210, 100)
+                screen.blit(game_config.nova, (0, 40))
+            if game_config.room2_completed:
+                game_config.room2timeTwo += clock.get_time()
+                if game_config.room2timeTwo < 6000:
+                    draw_textbox("Well done. You've ensured the AI is trained responsibly. Let’s move on to the final challenge.", 210, 100)
+                    screen.blit(game_config.nova, (0, 50))
+
         if not game_config.room2_completed:
             simple_text("WASD/Arrow keys to move.", 20, 20)
         if game_config.room2_completed:
@@ -813,7 +833,7 @@ while running:
                         room_start()
         
         if game_config.haskey:
-            simple_text("Click on the door (or E) to use the key.", 20, 20)
+            simple_text("Go the the door to leave the room.", 20, 20)
         
         if game_config.x < 250 and game_config.haskey:
             simple_text("Click (or E) to Use key.", 95, 290)
