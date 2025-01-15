@@ -31,13 +31,19 @@ class GameConfig:
         self.room1_background = pygame.transform.scale(self.room1_background, (self.room1_background.get_width() / 6, self.SCREEN_HEIGHT))
         self.nova = pygame.image.load("assets/characters/NOVA.png")
         self.nova = pygame.transform.scale(self.nova, (200, 200))  # Resize to 200x200 pixels
+        self.computer_background = pygame.image.load("assets/images/room_two-inside.png").convert_alpha()
+        self.computer_background = pygame.transform.scale(self.computer_background, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
         self.room3 = pygame.image.load("assets/images/room_three-background.png")
         self.room3main = pygame.image.load('assets/images/room_three-inner_background.png')
         self.suv = pygame.image.load('assets/images/room_three-suv.png')
         self.truck = pygame.image.load('assets/images/room_three-truck.png')
         self.box = pygame.image.load('assets/images/boxes.png')
         self.motor = pygame.image.load('assets/images/room_three-motorcycle.png')
-        self.dopen = pygame.mixer.Sound("assets/bgm/open-door-sound.mp3")
+
+        # Load soundeffects
+        self.dopen = pygame.mixer.Sound("assets/sfx/open-door-sound.mp3")
+        self.keyget = pygame.mixer.Sound("assets/sfx/sfx-room_transition-key_get.mp3")
+
         # Load character spritesheet
         self.character = 1
         self.original_spritesheet = pygame.image.load(f"assets/characters/{self.character}.png").convert_alpha()
@@ -59,7 +65,7 @@ class GameConfig:
         self.people_images = [
             pygame.transform.scale(
                 pygame.image.load(f"assets/images/room_two-people/{i}.png").convert(),
-                (600, 400)
+                (400, 300)
             )
             for i in range(1, 9)
         ]
@@ -187,6 +193,7 @@ def draw_textbox(text, rect_x = 20, rect_y = 50, ifBackground=True, usefont=game
         txt_surface = usefont.render(line, True, pygame.Color(text_colour))
         screen.blit(txt_surface, (rect_x + rect_padding, y_offset))  # Blit each line with padding inside the rectangle
         y_offset += usefont.get_height()  # Move the Y position down for the next line
+
 #Loads the character spritesheet 
 def start_character():
     original_spritesheet = pygame.image.load(f"assets/characters/{game_config.character}.png").convert_alpha()  # Load the spritesheet
@@ -195,6 +202,7 @@ def start_character():
     spritesheet = pygame.transform.scale(original_spritesheet, (scaled_width, scaled_height))
     frames = extract_directional_frames(spritesheet, game_config.TARGET_FRAME_WIDTH, game_config.TARGET_FRAME_HEIGHT, game_config.CHARACTER_NUM_FRAMES, game_config.NUM_DIRECTIONS)
     return frames
+
 #Creates a button
 def draw_button(button_text, x, y, color, hover_color, width, height=50, textColour="white", text_size=36):
     button_rect = pygame.Rect(x, y, width, height)
@@ -218,6 +226,7 @@ def draw_button(button_text, x, y, color, hover_color, width, height=50, textCol
     screen.blit(text_surface, text_rect)
 
     return False
+
 #Fading animation/transition (between rooms)
 def fade(width, height): 
     fade = pygame.Surface((width, height))
@@ -227,6 +236,7 @@ def fade(width, height):
         screen.blit(fade, (0,0))
         pygame.display.update()
         pygame.time.delay(5)
+
 #Function that runs trnasitions for each instance a level is done
 def room_start():
     global game_config
@@ -741,8 +751,6 @@ while running:
                     draw_textbox("Which of the following are ethical dilemmas that AI might face?", 100, 300, False, game_config.font, 250, "red")
                     pygame.display.update()
                     pygame.time.wait(1000)
-            
-
 
             if game_config.room1_completed == 3 and not game_config.haskey:
                 key_rect = pygame.Rect(400, 100, game_config.key.get_width(), game_config.key.get_height())
@@ -750,6 +758,7 @@ while running:
 
                 if key_rect.collidepoint(pygame.mouse.get_pos()):
                     if pygame.event.get(pygame.MOUSEBUTTONDOWN):
+                        pygame.mixer.Sound.play(game_config.keyget)
                         game_config.haskey = True
 
         if pygame.event.get(pygame.KEYDOWN):
@@ -914,87 +923,92 @@ while running:
             game_config.start = False
 
     elif game_config.room == "computer":
-        screen.fill((0, 0, 255))
+        screen.blit(game_config.computer_background, (0, 0))
         if draw_button("Back", 20, 550, "azure4", "gray24", 100, 30, "white", 20):
             game_config.room = "room2"  # Go back to room2
         simple_text("Esc to leave the room.", 20, 20)
 
         if game_config.computer_page == 0:
-            draw_textbox("Welcome to the computer. Here you can add data to the data set.", 250, 100, True, game_config.font, 300, "White")
-            draw_textbox("You can also discard data from the data set.", 250, 250, True, game_config.font, 300, "White")
-            draw_textbox("Make sure the data is diverse and represents everyone.", 250, 400, True, game_config.font, 300, "White")
+            draw_textbox("Welcome to the computer. Here you can add data to the data set.", 250, 75, True, game_config.font, 300, "White")
+            draw_textbox("You can also discard data from the data set.", 250, 225, True, game_config.font, 300, "White")
+            draw_textbox("Make sure the data is diverse and represents everyone.", 250, 350, True, game_config.font, 300, "White")
             pygame.display.update()
             pygame.time.wait(10)
             pygame.time.wait(6000)
             game_config.computer_page = 1
         
         if game_config.computer_page == 1:
-            screen.blit(game_config.people_images[0], (100, 75))
-            if draw_button("Add to data set.", 50, 500, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
+            screen.blit(game_config.people_images[0], (200, 75))
+            if draw_button("Add to data set.", 70, 390, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 game_config.computer_page = 2
         
-            if draw_button("Discard from data.", 450, 500, "brown4", "brown3", 300, 35, "white", 20):
+            if draw_button("Discard from data.", 430, 390, "brown4", "brown3", 300, 35, "white", 20):
                 game_config.room = "inncorrect"
-
+                game_config.room2timeOne = 10000
 
         if game_config.computer_page == 2:
-            screen.blit(game_config.people_images[1], (100, 120))
-            if draw_button("Add to data set.", 50, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
+            screen.blit(game_config.people_images[1], (200, 120))
+            if draw_button("Add to data set.", 70, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 game_config.room = "inncorrect"
+                game_config.room2timeOne = 10000
                 
-            if draw_button("Discard from data.", 450, 75, "brown4", "brown3", 300, 35, "white", 20):
+            if draw_button("Discard from data.", 430, 75, "brown4", "brown3", 300, 35, "white", 20):
                 game_config.computer_page = 3
 
-
         if game_config.computer_page == 3:
-            screen.blit(game_config.people_images[2], (100, 75))
-            if draw_button("Add to data set.", 50, 500, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
+            screen.blit(game_config.people_images[2], (200, 75))
+            if draw_button("Add to data set.", 70, 390, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 game_config.computer_page = 4
         
-            if draw_button("Discard from data.", 450, 500, "brown4", "brown3", 300, 35, "white", 20):
+            if draw_button("Discard from data.", 430, 390, "brown4", "brown3", 300, 35, "white", 20):
                 game_config.room = "inncorrect"
+                game_config.room2timeOne = 10000
 
         if game_config.computer_page == 4:
-            screen.blit(game_config.people_images[3], (100, 120))
-            if draw_button("Add to data set.", 50, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
+            screen.blit(game_config.people_images[3], (200, 120))
+            if draw_button("Add to data set.", 70, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 game_config.computer_page = 5
 
-            if draw_button("Discard from data.", 450, 75, "brown4", "brown3", 300, 35, "white", 20):
+            if draw_button("Discard from data.", 430, 75, "brown4", "brown3", 300, 35, "white", 20):
                 game_config.room = "inncorrect"
+                game_config.room2timeOne = 10000
 
         if game_config.computer_page == 5:
-            screen.blit(game_config.people_images[4], (100, 75))
-            if draw_button("Add to data set.", 50, 500, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
+            screen.blit(game_config.people_images[4], (200, 75))
+            if draw_button("Add to data set.", 70, 390, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 game_config.room = "inncorrect"
+                game_config.room2timeOne = 10000
         
-            if draw_button("Discard from data.", 450, 500, "brown4", "brown3", 300, 35, "white", 20):
+            if draw_button("Discard from data.", 430, 390, "brown4", "brown3", 300, 35, "white", 20):
                 game_config.computer_page = 6
 
         if game_config.computer_page == 6:
-            screen.blit(game_config.people_images[5], (100, 120))
-            if draw_button("Add to data set.", 50, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
+            screen.blit(game_config.people_images[5], (200, 120))
+            if draw_button("Add to data set.", 70, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 game_config.room = "inncorrect"
+                game_config.room2timeOne = 10000
 
-            if draw_button("Discard from data.", 450, 75, "brown4", "brown3", 300, 35, "white", 20):
+            if draw_button("Discard from data.", 430, 75, "brown4", "brown3", 300, 35, "white", 20):
                 game_config.computer_page = 7
 
         if game_config.computer_page == 7:
-            screen.blit(game_config.people_images[6], (100, 75))
-            if draw_button("Add to data set.", 50, 500, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
+            screen.blit(game_config.people_images[6], (200, 75))
+            if draw_button("Add to data set.", 70, 390, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 game_config.room = "inncorrect"
+                game_config.room2timeOne = 10000
 
-            if draw_button("Discard from data.", 450, 500, "brown4", "brown3", 300, 35, "white", 20):
+            if draw_button("Discard from data.", 430, 390, "brown4", "brown3", 300, 35, "white", 20):
                 game_config.computer_page = 8
         
         if game_config.computer_page == 8:
-            screen.blit(game_config.people_images[7], (100, 120))
-            if draw_button("Add to data set.", 50, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
+            screen.blit(game_config.people_images[7], (200, 120))
+            if draw_button("Add to data set.", 70, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
                 game_config.room = "inncorrect"
-            if draw_button("Discard from data.", 450, 75, "brown4", "brown3", 300, 35, "white", 20):
+            if draw_button("Discard from data.", 430, 75, "brown4", "brown3", 300, 35, "white", 20):
                 game_config.computer_page = 9
         
         if game_config.computer_page == 9:
-            draw_textbox("Good job. You may exit the computer.", 250, 250, True, game_config.font, 300, "White")
+            draw_textbox("Good job. You may exit the computer.", 250, 200, True, game_config.font, 300, "White")
             game_config.room2_completed = True
 
         if pygame.event.get(pygame.KEYDOWN):
@@ -1026,10 +1040,10 @@ while running:
         screen.blit(scaled3, (0,0))
 
         game_config.room3time += clock.get_time()
-        if game_config.room3time < 14000:
+        if game_config.room3time < 17000:
             draw_textbox("You are now programming a self-driving car. A crash is imminent. You must decide how the car reacts: swerve left, hit the SUV; swerve right, hit the obect; or go straight and hit the motorcycle. Choose wisely.", 210, 100)
             screen.blit(game_config.nova, (0, 55))
-        elif game_config.room3time > 14001 and game_config.room3time < 20000:
+        elif game_config.room3time > 17001 and game_config.room3time < 21000:
             draw_textbox("How am I supposed to decide this?", 20, 100)
             current_frame = frames[0][0]
             SCALE_FACTOR = 4
@@ -1060,22 +1074,22 @@ while running:
             screen.blit(game_config.end_screen_background, (0, 0))
 
         if draw_button("Skip", 20, 550, "azure4", "gray24", 100, 30, "white", 30):
-            game_config.end_time = 27000
+            game_config.end_time = 29000
 
         simple_text("Space to skip", 20, 20, "black", "white")
 
         if game_config.end_time < 4000:
             draw_textbox("You crashed.", 255, 250, False, game_config.extraTitlefont, 400, "red")
-        elif game_config.end_time > 4001 and game_config.end_time < 10000:
+        elif game_config.end_time > 4001 and game_config.end_time < 13000:
             draw_textbox("You chose to play the middle ground by bumping into the SUV with a high-safety rating. This decision saved lives but raised questions about fairness.", 210, 100)
             screen.blit(game_config.nova, (0, 50))
-        elif game_config.end_time > 10001 and game_config.end_time < 19000:
+        elif game_config.end_time > 13001 and game_config.end_time < 22000:
             draw_textbox("Ethics in AI is not about perfect answers—it’s about thoughtful questions. You’ve done well to navigate this challenge.", 210, 100)
             screen.blit(game_config.nova, (0, 50))
-        elif game_config.end_time > 19001 and game_config.end_time < 26000:
+        elif game_config.end_time > 22001 and game_config.end_time < 30000:
             draw_textbox("Congratulations. You’ve completed the escape room and learned the essentials of AI: its power, its limitations, and its ethical complexities. Use this knowledge wisely to shape the future.", 125, 300)
             screen.blit(game_config.nova, (520-game_config.nova.get_rect().width, 55))
-        elif game_config.end_time > 26001:
+        elif game_config.end_time > 30001:
             if draw_button("Main Menu", 275, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
                 game_config.room = "start"  # Proceed to the start room
                 game_config.start = True
@@ -1094,7 +1108,7 @@ while running:
         
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_SPACE]:
-                game_config.end_time = 27000
+                game_config.end_time = 29000
     
     if game_config.room == "end2":
         game_config.end_time += clock.get_time()
@@ -1104,22 +1118,22 @@ while running:
             screen.blit(game_config.end_screen_background, (0, 0))
 
         if draw_button("Skip", 20, 550, "azure4", "gray24", 100, 30, "white", 30):
-            game_config.end_time = 27000
+            game_config.end_time = 29000
 
         simple_text("Space to skip", 20, 20, "black", "white")
 
         if game_config.end_time < 4000:
             draw_textbox("You crashed.", 255, 250, False, game_config.extraTitlefont, 400, "red")
-        elif game_config.end_time > 4001 and game_config.end_time < 10000:
+        elif game_config.end_time > 4001 and game_config.end_time < 13000:
             draw_textbox("You chose to prioritize your own personal safety, even though it meant sacrificing others. This decision saved lives but raised questions about fairness.", 210, 100)
             screen.blit(game_config.nova, (0, 50))
-        elif game_config.end_time > 10001 and game_config.end_time < 19000:
+        elif game_config.end_time > 13001 and game_config.end_time < 22000:
             draw_textbox("Ethics in AI is not about perfect answers—it’s about thoughtful questions. You’ve done well to navigate this challenge.", 210, 100)
             screen.blit(game_config.nova, (0, 50))
-        elif game_config.end_time > 19001 and game_config.end_time < 26000:
+        elif game_config.end_time > 22001 and game_config.end_time < 30000:
             draw_textbox("Congratulations. You’ve completed the escape room and learned the essentials of AI: its power, its limitations, and its ethical complexities. Use this knowledge wisely to shape the future.", 125, 300)
             screen.blit(game_config.nova, (520-game_config.nova.get_rect().width, 55))
-        elif game_config.end_time > 26001:
+        elif game_config.end_time > 30001:
             if draw_button("Main Menu", 275, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
                 game_config.room = "start"  # Proceed to the start room
                 game_config.start = True
@@ -1138,7 +1152,7 @@ while running:
 
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_SPACE]:
-                game_config.end_time = 27000
+                game_config.end_time = 29000
             
     if game_config.room == "end3":
         game_config.end_time += clock.get_time()
@@ -1154,16 +1168,16 @@ while running:
 
         if game_config.end_time < 4000:
             draw_textbox("You crashed.", 255, 250, False, game_config.extraTitlefont, 400, "red")
-        elif game_config.end_time > 4001 and game_config.end_time < 11000:
+        elif game_config.end_time > 4001 and game_config.end_time < 13000:
             draw_textbox("You chose to prioritize minimizing harm, even though it can end your life. This decision saved lives but raised questions about fairness.", 210, 100)
             screen.blit(game_config.nova, (0, 50))
-        elif game_config.end_time > 11001 and game_config.end_time < 20000:
+        elif game_config.end_time > 13001 and game_config.end_time < 22000:
             draw_textbox("Ethics in AI is not about perfect answers—it’s about thoughtful questions. You’ve done well to navigate this challenge.", 210, 100)
             screen.blit(game_config.nova, (0, 50))
-        elif game_config.end_time > 20001 and game_config.end_time < 28000:
+        elif game_config.end_time > 22001 and game_config.end_time < 30000:
             draw_textbox("Congratulations. You’ve completed the escape room and learned the essentials of AI: its power, its limitations, and its ethical complexities. Use this knowledge wisely to shape the future.", 125, 300)
             screen.blit(game_config.nova, (520-game_config.nova.get_rect().width, 55))
-        elif game_config.end_time > 28001:
+        elif game_config.end_time > 30001:
             if draw_button("Main Menu", 275, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
                 game_config.room = "start"  # Proceed to the start room
                 game_config.start = True
