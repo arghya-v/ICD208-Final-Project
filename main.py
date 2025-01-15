@@ -8,6 +8,7 @@ pygame.display.set_caption("Escape The Algorithm")
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 
+# All variables and game assets loaded under a class to optimize performance
 class GameConfig:
     def __init__(self):
         # Screen dimensions and frame rate
@@ -36,7 +37,7 @@ class GameConfig:
         self.truck = pygame.image.load('assets/images/room_three-truck.png')
         self.box = pygame.image.load('assets/images/boxes.png')
         self.motor = pygame.image.load('assets/images/room_three-motorcycle.png')
-
+        self.dopen = pygame.mixer.Sound("assets/bgm/open-door-sound.mp3")
         # Load character spritesheet
         self.character = 1
         self.original_spritesheet = pygame.image.load(f"assets/characters/{self.character}.png").convert_alpha()
@@ -132,7 +133,7 @@ def simple_text(text, x, y, colour="black", back_colour="white"):
     # Draw the instructions text on top of the white box
     screen.blit(instructions_surface, (instructions_x, instructions_y))
 
-# Extract frames with bounds checking
+# Extract frames from a spritesheet by slicing the image into portions and storing the directional animations in a list with bounds checking
 def extract_directional_frames(spritesheet, frame_width, frame_height, num_frames, num_directions):
     frames = []
     for direction in range(num_directions):
@@ -186,7 +187,7 @@ def draw_textbox(text, rect_x = 20, rect_y = 50, ifBackground=True, usefont=game
         txt_surface = usefont.render(line, True, pygame.Color(text_colour))
         screen.blit(txt_surface, (rect_x + rect_padding, y_offset))  # Blit each line with padding inside the rectangle
         y_offset += usefont.get_height()  # Move the Y position down for the next line
-
+#Loads the character spritesheet 
 def start_character():
     original_spritesheet = pygame.image.load(f"assets/characters/{game_config.character}.png").convert_alpha()  # Load the spritesheet
     scaled_width = game_config.TARGET_FRAME_WIDTH * game_config.CHARACTER_NUM_FRAMES
@@ -194,7 +195,7 @@ def start_character():
     spritesheet = pygame.transform.scale(original_spritesheet, (scaled_width, scaled_height))
     frames = extract_directional_frames(spritesheet, game_config.TARGET_FRAME_WIDTH, game_config.TARGET_FRAME_HEIGHT, game_config.CHARACTER_NUM_FRAMES, game_config.NUM_DIRECTIONS)
     return frames
-
+#Creates a button
 def draw_button(button_text, x, y, color, hover_color, width, height=50, textColour="white", text_size=36):
     button_rect = pygame.Rect(x, y, width, height)
     mouse_pos = pygame.mouse.get_pos()
@@ -217,7 +218,7 @@ def draw_button(button_text, x, y, color, hover_color, width, height=50, textCol
     screen.blit(text_surface, text_rect)
 
     return False
-
+#Fading animation/transition (between rooms)
 def fade(width, height): 
     fade = pygame.Surface((width, height))
     fade.fill((0,0,0))
@@ -226,7 +227,7 @@ def fade(width, height):
         screen.blit(fade, (0,0))
         pygame.display.update()
         pygame.time.delay(5)
-
+#Function that runs trnasitions for each instance a level is done
 def room_start():
     global game_config
     if not game_config.start:
@@ -525,6 +526,7 @@ while running:
                 if pygame.key.get_pressed()[pygame.K_e]:
                     if game_config.haskey:
                         game_config.room = "room2"  # Go to the second room when 'E' is pressed
+                        pygame.mixer.Sound.play(game_config.dopen)
                         game_config.start = True
                         room_start()
         
@@ -560,6 +562,7 @@ while running:
                 if door_rect.collidepoint(mouse_pos):
                     if game_config.haskey:
                         game_config.room = "room2"  # Go to the second room when the door is clicked
+                        pygame.mixer.Sound.play(game_config.dopen)
                         game_config.start = True
                         room_start()
 
@@ -828,6 +831,7 @@ while running:
                 if door_rect.collidepoint(mouse_pos):
                     if game_config.haskey and game_config.room2_completed:
                         game_config.room = "room3"  # Go to the third room when the door is clicked
+                        pygame.mixer.Sound.play(game_config.dopen)
                         game_config.start = True
                         room_start()
         
@@ -839,6 +843,7 @@ while running:
             if pygame.event.get(pygame.KEYDOWN):
                 if pygame.key.get_pressed()[pygame.K_e]:
                     game_config.room = "room3"  # Go to the third room when the door is clicked
+                    pygame.mixer.Sound.play(game_config.dopen)
                     game_config.start = True
                     room_start()
 
