@@ -99,6 +99,10 @@ class GameConfig:
         self.computer_wrong = False
         self.haskey = False
         self.room2_completed = False
+        self.room1timeOne = 0
+        self.room1timeTwo = 0
+        self.room2time = 0
+        self.room3time = 0
         self.end_time = 0
         self.time_cutscene = 0
         self.FRAME_RATE = 300  # Milliseconds per frame
@@ -508,11 +512,23 @@ while running:
         screen.blit(game_config.room1_background, (0,0))
         if not game_config.haskey:
             simple_text("WASD/Arrow keys to move.", 20, 20)
+            game_config.room1timeOne += clock.get_time()
+            if game_config.room1timeOne < 6000:
+                draw_textbox("Before you proceed, you must understand the basics of Artificial Intelligence. Open the book on the pedistal.", 210, 100)
+                screen.blit(game_config.nova, (0, 50))
+            elif game_config.room1timeOne > 6001 and game_config.room1timeOne < 10000:
+                draw_textbox("Guess I don’t have much of a choice...", 20, 100)
+                screen.blit(scaled_frame, (550, -10))
         if game_config.haskey:
             simple_text("Click on the door to use the key.", 20, 20)
             if game_config.y < 390:
                 simple_text("Use key.", 485, 250)
-            
+        
+            game_config.room1timeTwo += clock.get_time()
+            if game_config.room1timeTwo < 6000:
+                draw_textbox("Excellent. Now you know the basics. Prepare for the next challenge.", 210, 100)
+                screen.blit(game_config.nova, (0, 50))
+
             start_frame_index = 0
             # Door animation logic
             door_sheet_scaled = pygame.transform.scale(game_config.door_sheet, (game_config.door_sheet.get_width() // 4, game_config.door_sheet.get_height() // 4))
@@ -542,7 +558,7 @@ while running:
                         game_config.room = "room2"  # Go to the second room when the door is clicked
                         game_config.start = True
                         room_start()
-            
+
         ROOM1_X_MIN = -100
         ROOM1_X_MAX = SCREEN_WIDTH-game_config.pedistal.get_width()-170
         ROOM1_Y_MAX = SCREEN_HEIGHT - 190
