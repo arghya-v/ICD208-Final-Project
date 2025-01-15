@@ -330,6 +330,16 @@ while running:
 
         simple_text("Q or W to change characters", 10, 455)
 
+        for event in pygame.event.get(pygame.KEYDOWN):
+            if event.key == pygame.K_q:
+                game_config.character -= 1
+                if game_config.character < 1:
+                    game_config.character = 10
+            elif event.key == pygame.K_w:
+                game_config.character += 1
+                if game_config.character > 10:
+                    game_config.character = 1
+
         # Draw the buttons and check if clicked
         if draw_button("Start", crop_rect.centerx-125, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
             game_config.room = "cutscene"  # Proceed to the first room
@@ -340,16 +350,6 @@ while running:
         if draw_button("Help", crop_rect.centerx-125, 390, pygame.Color("lightgreen"), pygame.Color("green"), 250, 50):
             game_config.room = "help"  # Go to the help room
             game_config.start = True
-
-        for event in pygame.event.get(pygame.KEYDOWN):
-            if event.key == pygame.K_q:
-                game_config.character -= 1
-                if game_config.character < 1:
-                    game_config.character = 10
-            elif event.key == pygame.K_w:
-                game_config.character += 1
-                if game_config.character > 10:
-                    game_config.character = 1
         
         frames = start_character()  # Load frames once more so we have it in future rooms and don't need to keep reloading
 
@@ -360,7 +360,7 @@ while running:
         screen.blit(game_config.start_background, (400, 300))
         screen.blit(game_config.workscited_background, (0, 40))
         simple_text("ESC to go back", 10, 10)
-        if draw_button("Back", 10, SCREEN_HEIGHT-40, pygame.Color("gray67"), pygame.Color("gray50"), 100, 30, "white", 30):
+        if draw_button("Back", 10, SCREEN_HEIGHT-40, pygame.Color("burlywood4"), pygame.Color("chocolate4"), 100, 30, "white", 30):
             game_config.room = "start"
             game_config.start = True
 
@@ -392,7 +392,7 @@ while running:
         screen.blit(game_config.start_background, (400, 300))
         screen.blit(game_config.workscited_background, (0, 40))
         simple_text("ESC to go back", 10, 10)
-        if draw_button("Back", 10, SCREEN_HEIGHT-40, pygame.Color("gray67"), pygame.Color("gray50"), 100, 30, "white", 30):
+        if draw_button("Back", 10, SCREEN_HEIGHT-40, pygame.Color("burlywood4"), pygame.Color("chocolate4"), 100, 30, "white", 30):
             game_config.room = "start"
             game_config.start = True
         
@@ -780,8 +780,9 @@ while running:
             # Draw the current frame
             screen.blit(current_door_frame, door_pos)
 
-            if game_config.x < 200 and game_config.haskey and game_config.room2_completed:
-                simple_text("Click to use key.", 135, 280)
+            # Check if the mouse is over the door
+            mouse_pos = pygame.mouse.get_pos()
+            door_rect = pygame.Rect(door_pos[0], door_pos[1], door_frame_width, door_frame_height)
 
             if pygame.mouse.get_pressed()[0]:  # Check for left mouse button click
                 if door_rect.collidepoint(mouse_pos):
@@ -789,6 +790,7 @@ while running:
                         game_config.room = "room3"  # Go to the third room when the door is clicked
                         game_config.start = True
                         room_start()
+        
         if game_config.haskey and game_config.room2_completed:
             simple_text("Click on the door to use the key.", 20, 20)
 
@@ -987,6 +989,9 @@ while running:
         elif game_config.end_time > 4001:
             screen.blit(game_config.end_screen_background, (0, 0))
 
+        if draw_button("Skip", 20, 550, "azure4", "gray24", 100, 30, "white", 30):
+            game_config.end_time = 27000
+
         simple_text("Space to skip", 20, 20, "black", "white")
 
         if game_config.end_time < 4000:
@@ -1005,16 +1010,17 @@ while running:
                 game_config.room = "start"  # Proceed to the start room
                 game_config.start = True
                 game_config = GameConfig()
-                pygame.display.update()
-                pygame.time.wait(100)
+                pygame.event.clear(pygame.MOUSEBUTTONDOWN)
             if draw_button("Play Again", 275, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
                 game_config = GameConfig()
                 game_config.room = "cutscene"  # Go to the cutscene
                 game_config.start = True
+                pygame.event.clear(pygame.MOUSEBUTTONDOWN)
             if draw_button("Works Cited", 275, 390, pygame.Color("lightgreen"), pygame.Color("green"), 250, 50):
                 game_config = GameConfig()
                 game_config.room = "work cited"  # Go to the works cited
                 game_config.start = True
+                pygame.event.clear(pygame.MOUSEBUTTONDOWN)
         
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_SPACE]:
@@ -1026,6 +1032,9 @@ while running:
             screen.fill((0, 0, 0))
         elif game_config.end_time > 4001:
             screen.blit(game_config.end_screen_background, (0, 0))
+
+        if draw_button("Skip", 20, 550, "azure4", "gray24", 100, 30, "white", 30):
+            game_config.end_time = 27000
 
         simple_text("Space to skip", 20, 20, "black", "white")
 
@@ -1045,16 +1054,17 @@ while running:
                 game_config.room = "start"  # Proceed to the start room
                 game_config.start = True
                 game_config = GameConfig()
-                pygame.display.update()
-                pygame.time.wait(100)
+                pygame.event.clear(pygame.MOUSEBUTTONDOWN)
             if draw_button("Play Again", 275, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
                 game_config = GameConfig()
                 game_config.room = "cutscene"  # Go to the cutscene
                 game_config.start = True
+                pygame.event.clear(pygame.MOUSEBUTTONDOWN)
             if draw_button("Works Cited", 275, 390, pygame.Color("lightgreen"), pygame.Color("green"), 250, 50):
                 game_config = GameConfig()
                 game_config.room = "work cited"  # Go to the works cited
                 game_config.start = True
+                pygame.event.clear(pygame.MOUSEBUTTONDOWN)
 
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_SPACE]:
@@ -1067,6 +1077,9 @@ while running:
         elif game_config.end_time > 4001:
             screen.blit(game_config.end_screen_background, (0, 0))
         
+        if draw_button("Skip", 20, 550, "azure4", "gray24", 100, 30, "white", 30):
+            game_config.end_time = 27000
+
         simple_text("Space to skip", 20, 20, "black", "white")
 
         if game_config.end_time < 4000:
@@ -1085,16 +1098,17 @@ while running:
                 game_config.room = "start"  # Proceed to the start room
                 game_config.start = True
                 game_config = GameConfig()
-                pygame.display.update()
-                pygame.time.wait(100)
+                pygame.event.clear(pygame.MOUSEBUTTONDOWN)
             if draw_button("Play Again", 275, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
                 game_config = GameConfig()
                 game_config.room = "cutscene"  # Go to the cutscene
                 game_config.start = True
+                pygame.event.clear(pygame.MOUSEBUTTONDOWN)
             if draw_button("Works Cited", 275, 390, pygame.Color("lightgreen"), pygame.Color("green"), 250, 50):
                 game_config = GameConfig()
                 game_config.room = "work cited"  # Go to the works cited
                 game_config.start = True
+                pygame.event.clear(pygame.MOUSEBUTTONDOWN)
 
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_SPACE]:
