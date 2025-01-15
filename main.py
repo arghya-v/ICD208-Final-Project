@@ -813,6 +813,8 @@ while running:
                 if key_rect.collidepoint(pygame.mouse.get_pos()):
                     if pygame.event.get(pygame.MOUSEBUTTONDOWN):
                         game_config.haskey = True
+                        pygame.mixer.Sound.play(game_config.keyget)
+            
             # Door animation logic
             start_frame_index = 0
             door_sheet_scaled = pygame.transform.scale(game_config.door_sheet, (game_config.door_sheet.get_width() // 4, game_config.door_sheet.get_height() // 4))
@@ -862,7 +864,6 @@ while running:
         ROOM2_Y_MIN = SCREEN_HEIGHT - 290
         ROOM2_Y_MAX = SCREEN_HEIGHT - 90  
 
-        
         keys = pygame.key.get_pressed()
 
         # Move horizontally and vertically based on keys pressed
