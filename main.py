@@ -30,6 +30,12 @@ class GameConfig:
         self.room1_background = pygame.transform.scale(self.room1_background, (self.room1_background.get_width() / 6, self.SCREEN_HEIGHT))
         self.nova = pygame.image.load("assets/characters/NOVA.png")
         self.nova = pygame.transform.scale(self.nova, (200, 200))  # Resize to 200x200 pixels
+        self.room3 = pygame.image.load("assets/images/room_three-background.png")
+        self.room3main = pygame.image.load('assets/images/room_three-inner_background.png')
+        self.suv = pygame.image.load('assets/images/room_three-suv.png')
+        self.truck = pygame.image.load('assets/images/room_three-truck.png')
+        self.box = pygame.image.load('assets/images/boxes.png')
+        self.motor = pygame.image.load('assets/images/room_three-motorcycle.png')
 
         # Load character spritesheet
         self.character = 1
@@ -314,7 +320,7 @@ while running:
 
         # Draw the buttons and check if clicked
         if draw_button("Start", crop_rect.centerx-125, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
-            game_config.room = "room2"  # Proceed to the first room
+            game_config.room = "cutscene"  # Proceed to the first room
             game_config.start = True
         if draw_button("Work Cited", crop_rect.centerx-125, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
             game_config.room = "work cited"  # Go to the work cited room
@@ -404,9 +410,9 @@ while running:
             game_config.room = "room1"
             game_config.start = True
 
-        time_cutscene += clock.get_time()
+        game_config.time_cutscene += clock.get_time()
 
-        if time_cutscene < 10000:
+        if game_config.time_cutscene < 10000:
             # Draw the text in room1
             draw_textbox("AI is taking over the world and has trapped you in its neural network", 
                         rect_x=200, rect_y=50, ifBackground=True, 
@@ -453,7 +459,7 @@ while running:
             nova_y = 50  # Position y to align nova in the bottom-right
             screen.blit(nova_scaled, (nova_x, nova_y))  # Blit nova image
 
-        if time_cutscene > 10010 and time_cutscene < 14000:
+        if game_config.time_cutscene > 10010 and game_config.time_cutscene < 14000:
             draw_textbox("WHAT! Who are you? How do I escape?!", 20, 100)
 
             current_frame = frames[0][0]
@@ -463,36 +469,36 @@ while running:
             scaled_frame = pygame.transform.scale(current_frame, (scaled_width, scaled_height))
             screen.blit(scaled_frame, (550, -100))
 
-        elif time_cutscene > 14010 and time_cutscene < 23000:
+        elif game_config.time_cutscene > 14010 and game_config.time_cutscene < 23000:
             draw_textbox("Good morning, Player. I am NOVA, your Artificial Intelligence guide. Welcome to the escape room. Your mission is to solve puzzles and challenges, all while learning about the wonders—and risks—of AI. Failure to succeed will leave you here... indefinitely.", 210, 100)
             screen.blit(game_config.nova, (0, 75))
 
-        elif time_cutscene > 24500 and time_cutscene < 30000:
+        elif game_config.time_cutscene > 24500 and game_config.time_cutscene < 30000:
             draw_textbox("Wait... what? Is this some kind of joke?", 20, 100)
             screen.blit(scaled_frame, (550, -100))
         
-        elif time_cutscene > 31000 and time_cutscene < 35000:
+        elif game_config.time_cutscene > 31000 and game_config.time_cutscene < 35000:
             draw_textbox("I assure you, this is no joke. Let us begin. Your first task awaits.", 210, 100)
             screen.blit(game_config.nova, (0, 25))
         
-        elif time_cutscene > 35200:
+        elif game_config.time_cutscene > 35200:
             game_config.room = "room1"  # Proceed to the first room
             game_config.start = True
-            time_cutscene = 0
+            game_config.time_cutscene = 0
 
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_SPACE]:
                 game_config.room = "room1"  # Go to the first room when space is pressed
                 game_config.start = True
-                time_cutscene = 0
+                game_config.time_cutscene = 0
         
     elif game_config.room == "room1":
         screen.blit(game_config.room1_background, (0,0))
-        if not haskey:
+        if not game_config.haskey:
             simple_text("WASD/Arrow keys to move.", 20, 20)
-        if haskey:
+        if game_config.haskey:
             simple_text("Click on the door to use the key.", 20, 20)
-            if y < 390:
+            if game_config.y < 390:
                 simple_text("Use key.", 485, 250)
             
             start_frame_index = 0
@@ -520,9 +526,9 @@ while running:
 
             if pygame.mouse.get_pressed()[0]:  # Check for left mouse button click
                 if door_rect.collidepoint(mouse_pos):
-                    if haskey:
-                        room = "room2"  # Go to the second room when the door is clicked
-                        start = True
+                    if game_config.haskey:
+                        game_config.room = "room2"  # Go to the second room when the door is clicked
+                        game_config.start = True
                         room_start()
             
         ROOM1_X_MIN = -100
@@ -554,71 +560,79 @@ while running:
             direction = 0  # Default to DOWN
         
         # Clamp position within boundaries
-        x = max(ROOM1_X_MIN, min(x, ROOM1_X_MAX))
-        y = max(ROOM1_Y_MIN, min(y, ROOM1_Y_MAX))
+        game_config.x = max(ROOM1_X_MIN, min(game_config.x, ROOM1_X_MAX))
+        game_config.y = max(ROOM1_Y_MIN, min(game_config.y, ROOM1_Y_MAX))
         
         # Update frame based on timer
-        charecter_frame_timer += clock.get_time()
-        if charecter_frame_timer > FRAME_RATE:
-            charecter_frame_index = (charecter_frame_index + 1) % CHARACTER_NUM_FRAMES
-            charecter_frame_timer = 0
+        game_config.charecter_frame_timer += clock.get_time()
+        if game_config.charecter_frame_timer > game_config.FRAME_RATE:
+            game_config.charecter_frame_index = (game_config.charecter_frame_index + 1) % game_config.CHARACTER_NUM_FRAMES
+            game_config.charecter_frame_timer = 0
 
-        current_frame = frames[direction][charecter_frame_index]
+        current_frame = frames[direction][game_config.charecter_frame_index]
         SCALE_FACTOR = 2.5
         scaled_width = current_frame.get_width() * SCALE_FACTOR
         scaled_height = current_frame.get_height() * SCALE_FACTOR
         scaled_frame = pygame.transform.scale(current_frame, (scaled_width, scaled_height))
-        screen.blit(scaled_frame, (x, y))
+        screen.blit(scaled_frame, (game_config.x, game_config.y))
 
-        screen.blit(pedistal, (SCREEN_WIDTH-pedistal.get_width()-50, SCREEN_HEIGHT-pedistal.get_height()))
-        screen.blit(book, (SCREEN_WIDTH-pedistal.get_width()-50, SCREEN_HEIGHT-pedistal.get_height()-book.get_height()+20))
-        if x > SCREEN_WIDTH-pedistal.get_width()-300 and y > 390:
-            simple_text("E to open book.", SCREEN_WIDTH-pedistal.get_width()-90, (SCREEN_HEIGHT-pedistal.get_height())-book.get_height()-20)
-            if pygame.key.get_pressed()[pygame.K_e]:
-                room = "book"
-                start = False
+        screen.blit(game_config.pedistal, (SCREEN_WIDTH-game_config.pedistal.get_width()-50, SCREEN_HEIGHT-game_config.pedistal.get_height()))
+        screen.blit(game_config.book, (SCREEN_WIDTH-game_config.pedistal.get_width()-50, SCREEN_HEIGHT-game_config.pedistal.get_height()-game_config.book.get_height()+20))
+        if not game_config.haskey:
+            if game_config.x > SCREEN_WIDTH-game_config.pedistal.get_width()-300 and game_config.y > 350:
+                simple_text("E to open book.", SCREEN_WIDTH-game_config.pedistal.get_width()-90, (SCREEN_HEIGHT-game_config.pedistal.get_height())-game_config.book.get_height()-20)
+                if pygame.key.get_pressed()[pygame.K_e]:
+                    game_config.room = "book"
+                    game_config.start = False
+        else:
+            if game_config.x > SCREEN_WIDTH-game_config.pedistal.get_width()-300 and game_config.y > 390:
+                simple_text("E to open book.", SCREEN_WIDTH-game_config.pedistal.get_width()-90, (SCREEN_HEIGHT-game_config.pedistal.get_height())-game_config.book.get_height()-20)
+                if pygame.key.get_pressed()[pygame.K_e]:
+                    game_config.room = "book"
+                    game_config.start = False
+                    game_config.book_page = 1
         
     if game_config.room == "book":
-        screen.blit(room1_background, (0, 0))
-        screen.blit(book_inside, (0, 0))
+        screen.blit(game_config.room1_background, (0, 0))
+        screen.blit(game_config.book_inside, (0, 0))
 
-        if book_page == 1 and room1_completed == 3:
+        if game_config.book_page == 1 and game_config.room1_completed == 3:
             simple_text("ESC to go back, Click key to collect, QW to chnage pages", 10, 0)
         else:
             simple_text("ESC to go back, QW to chnage pages", 10, 0)
         if draw_button("Back", 10, SCREEN_HEIGHT-40, pygame.Color("gray67"), pygame.Color("gray50"), 100, 30, "white", 30):
-            room = "room1"
-            start = False
+            game_config.room = "room1"
+            game_config.start = False
 
         if draw_button("Next Page", 600, 535, pygame.Color("gray67"), pygame.Color("gray50"), 100, 20, "white", 15):
-            book_page += 1
-            if book_page > 1:
-                book_page = 1
+            game_config.book_page += 1
+            if game_config.book_page > 1:
+                game_config.book_page = 1
         if draw_button("Previous Page", 100, 530, pygame.Color("gray67"), pygame.Color("gray50"), 100, 20, "white", 12):
-            book_page -= 1
-            if book_page < 0:
-                book_page = 0
+            game_config.book_page -= 1
+            if game_config.book_page < 0:
+                game_config.book_page = 0
 
-        if book_page == 0:
-            book_text_surface = Titlefont.render("AI 101:", True, pygame.Color("black"))
+        if game_config.book_page == 0:
+            book_text_surface = game_config.Titlefont.render("AI 101:", True, pygame.Color("black"))
             book_text_rect = book_text_surface.get_rect(centerx=245, centery=50)
             screen.blit(book_text_surface, book_text_rect)
-            book_text_surface = Titlefont.render("A Beginner’s Guide", True, pygame.Color("black"))
-            book_text_rect = book_text_surface.get_rect(centerx=245, centery=50+Titlefont.get_height())
+            book_text_surface = game_config.Titlefont.render("A Beginner’s Guide", True, pygame.Color("black"))
+            book_text_rect = book_text_surface.get_rect(centerx=245, centery=50+game_config.Titlefont.get_height())
             screen.blit(book_text_surface, book_text_rect)
 
-            book_text_surface = font.render("Remember to read carefully.", True, pygame.Color("black"))
+            book_text_surface = game_config.font.render("Remember to read carefully.", True, pygame.Color("black"))
             book_text_rect = book_text_surface.get_rect(centerx=800-235, centery=50)
             screen.blit(book_text_surface, book_text_rect)
-            book_text_surface = font.render("You will need this later.", True, pygame.Color("black"))
-            book_text_rect = book_text_surface.get_rect(centerx=800-235, centery=50+font.get_height())
+            book_text_surface = game_config.font.render("You will need this later.", True, pygame.Color("black"))
+            book_text_rect = book_text_surface.get_rect(centerx=800-235, centery=50+game_config.font.get_height())
             screen.blit(book_text_surface, book_text_rect)
 
             book_bodytext = ["What is AI?",
                                 "Artificial Intelligence (AI) is like giving computers the ability to think and solve problems, just like humans. AI helps machines recognize patterns, make decisions, and even talk to us, like when you ask a virtual assistant for help. To make AI work, scientists use huge amounts of data and special computer tools like GPUs (graphics processing units) that process information really quickly. AI can learn new things by practicing over and over, just like we do when we study for a test!"]
             linecount = 0
             for line in book_bodytext:
-                draw_textbox(line, book_inside.get_rect().x+75, 100+Bodyfont.get_height()*linecount, False, Bodyfont, 250, "black", 60)
+                draw_textbox(line, game_config.book_inside.get_rect().x+75, 100+game_config.Bodyfont.get_height()*linecount, False, game_config.Bodyfont, 250, "black", 60)
                 linecount += 1
             
             book_bodytext = ["How AI Works", " ",
@@ -628,115 +642,117 @@ while running:
                                 "AI is super helpful, but it’s important to use it responsibly. If we don’t use enough good, fair data to teach an AI, it might make mistakes, like being unfair or making bad predictions. Sometimes, AI has to solve tricky problems, like deciding how a self-driving car should react in a dangerous situation. These are called ethical dilemmas, and they show why we need to think carefully about how we use AI. By learning about AI now, you can help shape a future where it makes life better for everyone!"]
             linecount = 0
             for line in book_bodytext:
-                draw_textbox(line, book_inside.get_rect().x+350, 30+Bodyfont.get_height()*linecount, False, Bodyfont, 300, "black", 60)
+                draw_textbox(line, game_config.book_inside.get_rect().x+350, 30+game_config.Bodyfont.get_height()*linecount, False, game_config.Bodyfont, 300, "black", 60)
                 linecount += 1
 
-        if book_page == 1:
-            if qOne_done:
-                draw_textbox("AI can solve problems and learn new things by practicing, just like humans.", 100, 50, False, font, 250, "darkgreen")
+        if game_config.book_page == 1:
+            if game_config.qOne_done:
+                draw_textbox("AI can solve problems and learn new things by practicing, just like humans.", 100, 50, False, game_config.font, 250, "darkgreen")
                 if draw_button("True", 120, 150, pygame.Color("darkgreen"), pygame.Color("gray50"), 110, 25, "white", 20):
                     a = 0
             else:
-                draw_textbox("AI can solve problems and learn new things by practicing, just like humans.", 100, 50, False, font, 250, "black")
+                draw_textbox("AI can solve problems and learn new things by practicing, just like humans.", 100, 50, False, game_config.font, 250, "black")
                 if draw_button("True", 120, 150, pygame.Color("gray67"), pygame.Color("gray50"), 110, 25, "white", 20):
-                    qOne_done = True
-                    room1_completed += 1
+                    game_config.qOne_done = True
+                    game_config.room1_completed += 1
                 elif draw_button("False", 240, 150, pygame.Color("gray67"), pygame.Color("gray50"), 110, 25, "white", 20):
                     if draw_button("False", 240, 150, pygame.Color("red"), pygame.Color("red"), 110, 25, "white", 20):
                         a= 0
-                    draw_textbox("AI can solve problems and learn new things by practicing, just like humans.", 100, 50, False, font, 250, "red")
+                    draw_textbox("AI can solve problems and learn new things by practicing, just like humans.", 100, 50, False, game_config.font, 250, "red")
                     pygame.display.update()
                     pygame.time.wait(1000)
             
-            if qTwo_done:
-                draw_textbox("What part of the human brain inspired AI?", 100, 200, False, font, 250, "darkgreen")
+            if game_config.qTwo_done:
+                draw_textbox("What part of the human brain inspired AI?", 100, 200, False, game_config.font, 250, "darkgreen")
                 if draw_button("Neurons", 290, 260, pygame.Color("darkgreen"), pygame.Color("gray50"), 80, 20, "white", 15):
                     a = 0
             else:
-                draw_textbox("What part of the human brain inspired AI?", 100, 200, False, font, 250, "black")
+                draw_textbox("What part of the human brain inspired AI?", 100, 200, False, game_config.font, 250, "black")
                 if draw_button("Muscles", 110, 260, pygame.Color("gray67"), pygame.Color("gray50"), 80, 20, "white", 15):
                     if draw_button("Muscles", 110, 260, pygame.Color("red"), pygame.Color("red"), 80, 20, "white", 15):
                         a = 0
-                    draw_textbox("What part of the human brain inspired AI?", 100, 200, False, font, 250, "red")
+                    draw_textbox("What part of the human brain inspired AI?", 100, 200, False, game_config.font, 250, "red")
                     pygame.display.update()
                     pygame.time.wait(1000)
                 elif draw_button("Bones", 200, 260, pygame.Color("gray67"), pygame.Color("gray50"), 80, 20, "white", 15):
                     if draw_button("Bones", 200, 260, pygame.Color("red"), pygame.Color("red"), 80, 20, "white", 15):
                         a = 0
-                    draw_textbox("What part of the human brain inspired AI?", 100, 200, False, font, 250, "red")
+                    draw_textbox("What part of the human brain inspired AI?", 100, 200, False, game_config.font, 250, "red")
                     pygame.display.update()
                     pygame.time.wait(1000)
                 elif draw_button("Neurons", 290, 260, pygame.Color("gray67"), pygame.Color("gray50"), 80, 20, "white", 15):
-                    qTwo_done = True
-                    room1_completed += 1
+                    game_config.qTwo_done = True
+                    game_config.room1_completed += 1
                 
             
-            if qThree_done:
-                draw_textbox("Which of the following are ethical dilemmas that AI might face?", 100, 300, False, font, 250, "darkgreen")
+            if game_config.qThree_done:
+                draw_textbox("Which of the following are ethical dilemmas that AI might face?", 100, 300, False, game_config.font, 250, "darkgreen")
                 if draw_button("Self-driving car reacts in an accident", 110, 420, pygame.Color("darkgreen"), pygame.Color("gray50"), 260, 30, "white", 11):
                     a = 0
             else:
-                draw_textbox("Which of the following are ethical dilemmas that AI might face?", 100, 300, False, font, 250, "black")
+                draw_textbox("Which of the following are ethical dilemmas that AI might face?", 100, 300, False, game_config.font, 250, "black")
                 if draw_button("Recognizing patterns in data", 110, 380, pygame.Color("gray67"), pygame.Color("gray50"), 260, 30, "white", 15):
                     if draw_button("Recognizing patterns in data", 110, 380, pygame.Color("red"), pygame.Color("red"), 260, 30, "white", 15):
                         a = 0
-                    draw_textbox("Which of the following are ethical dilemmas that AI might face?", 100, 300, False, font, 250, "red")
+                    draw_textbox("Which of the following are ethical dilemmas that AI might face?", 100, 300, False, game_config.font, 250, "red")
                     pygame.display.update()
                     pygame.time.wait(1000)
                 elif draw_button("Self-driving car reacts in an accident", 110, 420, pygame.Color("gray67"), pygame.Color("gray50"), 260, 30, "white", 11):
-                    qThree_done = True
-                    room1_completed += 1
+                    game_config.qThree_done = True
+                    game_config.room1_completed += 1
                 elif draw_button("Picking your cereal for you.", 110, 460, pygame.Color("gray67"), pygame.Color("gray50"), 260, 30, "white", 15):
                     if draw_button("Picking your cereal for you.", 110, 460, pygame.Color("red"), pygame.Color("red"), 260, 30, "white", 15):
                         a = 0
-                    draw_textbox("Which of the following are ethical dilemmas that AI might face?", 100, 300, False, font, 250, "red")
+                    draw_textbox("Which of the following are ethical dilemmas that AI might face?", 100, 300, False, game_config.font, 250, "red")
                     pygame.display.update()
                     pygame.time.wait(1000)
             
 
 
-            if room1_completed == 3 and not haskey:
-                key_rect = pygame.Rect(400, 100, key.get_width(), key.get_height())
-                screen.blit(key, (400, 100))
+            if game_config.room1_completed == 3 and not game_config.haskey:
+                key_rect = pygame.Rect(400, 100, game_config.key.get_width(), game_config.key.get_height())
+                screen.blit(game_config.key, (400, 100))
 
                 if key_rect.collidepoint(pygame.mouse.get_pos()):
                     if pygame.event.get(pygame.MOUSEBUTTONDOWN):
-                        haskey = True
+                        game_config.haskey = True
 
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_ESCAPE]:
-                room = "room1"  # Go back to the start when escape is
-                start = False
+                game_config.room = "room1"  # Go back to the start when escape is
+                game_config.start = False
             elif pygame.key.get_pressed()[pygame.K_q]:
-                book_page -= 1
-                if book_page < 0:
-                    book_page = 0
+                game_config.book_page -= 1
+                if game_config.book_page < 0:
+                    game_config.book_page = 0
             elif pygame.key.get_pressed()[pygame.K_w]:
-                book_page += 1
-                if book_page > 1:
-                    book_page = 1
+                game_config.book_page += 1
+                if game_config.book_page > 1:
+                    game_config.book_page = 1
         
     # Room 2 logic
     elif game_config.room == "room2":
-        scaledrm2 = pygame.transform.scale(room2_background, (SCREEN_WIDTH, SCREEN_HEIGHT))
-        scaledpc = pygame.transform.scale(computer, (200, 200))
+        scaledrm2 = pygame.transform.scale(game_config.room2_background, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        scaledpc = pygame.transform.scale(game_config.computer, (200, 200))
         screen.blit(scaledrm2, (0, 0))
         screen.blit(scaledpc, (400, 325))
-        if room2_completed:
-            if not haskey:
-                key = pygame.transform.scale(key, (30, 50))
-                screen.blit(key, (320, 300))
+        if not game_config.room2_completed:
+            simple_text("WASD/Arrow keys to move.", 20, 20)
+        if game_config.room2_completed:
+            if not game_config.haskey:
+                game_config.key = pygame.transform.scale(game_config.key, (30, 50))
+                screen.blit(game_config.key, (320, 300))
                 simple_text("Click the key to collect.", 20, 20)
 
-                key_rect = pygame.Rect(320, 300, key.get_width(), key.get_height())
+                key_rect = pygame.Rect(320, 300, game_config.key.get_width(), game_config.key.get_height())
 
                 if key_rect.collidepoint(pygame.mouse.get_pos()):
                     if pygame.event.get(pygame.MOUSEBUTTONDOWN):
-                        haskey = True
+                        game_config.haskey = True
             # Door animation logic
             start_frame_index = 0
-            door_sheet_scaled = pygame.transform.scale(door_sheet, (door_sheet.get_width() // 4, door_sheet.get_height() // 4))
-            door_frame_width = door_sheet_scaled.get_width() // START_NUM_FRAMES
+            door_sheet_scaled = pygame.transform.scale(game_config.door_sheet, (game_config.door_sheet.get_width() // 4, game_config.door_sheet.get_height() // 4))
+            door_frame_width = door_sheet_scaled.get_width() // game_config.START_NUM_FRAMES
             door_frame_height = door_sheet_scaled.get_height()
             door_pos = (175, 320)  # Adjust to position the door in Room 2
 
@@ -758,11 +774,11 @@ while running:
 
             if pygame.mouse.get_pressed()[0]:  # Check for left mouse button click
                 if door_rect.collidepoint(mouse_pos):
-                    if haskey and room2_completed:
-                        room = "room3"  # Go to the third room when the door is clicked
-                        start = True
+                    if game_config.haskey and game_config.room2_completed:
+                        game_config.room = "room3"  # Go to the third room when the door is clicked
+                        game_config.start = True
                         room_start()
-        if haskey and room2_completed:
+        if game_config.haskey and game_config.room2_completed:
             simple_text("Click on the door to use the key.", 20, 20)
 
         # Define boundaries for Room 2
@@ -776,49 +792,49 @@ while running:
 
         # Move horizontally and vertically based on keys pressed
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            x += SPEED
-            direction = 1  # RIGHT
+            game_config.x += game_config.SPEED
+            game_config.direction = 1  # RIGHT
         elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            x -= SPEED
-            direction = 3  # LEFT
+            game_config.x -= game_config.SPEED
+            game_config.direction = 3  # LEFT
         elif keys[pygame.K_UP] or keys[pygame.K_w]:
-            y -= SPEED
-            direction = 2  # UP
+            game_config.y -= game_config.SPEED
+            game_config.direction = 2  # UP
         elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            y += SPEED
-            direction = 0  # DOWN
+            game_config.y += game_config.SPEED
+            game_config.direction = 0  # DOWN
         else:
-            direction = 0  # Default to DOWN
+            game_config.direction = 0  # Default to DOWN
 
         # Apply clamping after movement
-        if x < ROOM2_X_MIN:
-            x = ROOM2_X_MIN
-        elif x > ROOM2_X_MAX:
-            x = ROOM2_X_MAX
+        if game_config.x < ROOM2_X_MIN:
+            game_config.x = ROOM2_X_MIN
+        elif game_config.x > ROOM2_X_MAX:
+            game_config.x = ROOM2_X_MAX
 
-        if y < ROOM2_Y_MIN:
-            y = ROOM2_Y_MIN
-        elif y > ROOM2_Y_MAX:
-            y = ROOM2_Y_MAX
+        if game_config.y < ROOM2_Y_MIN:
+            game_config.y = ROOM2_Y_MIN
+        elif game_config.y > ROOM2_Y_MAX:
+            game_config.y = ROOM2_Y_MAX
 
-        charecter_frame_timer += clock.get_time()
-        if charecter_frame_timer > FRAME_RATE:
-            charecter_frame_index = (charecter_frame_index + 1) % CHARACTER_NUM_FRAMES
-            charecter_frame_timer = 0
+        game_config.charecter_frame_timer += clock.get_time()
+        if game_config.charecter_frame_timer > game_config.FRAME_RATE:
+            game_config.charecter_frame_index = (game_config.charecter_frame_index + 1) % game_config.CHARACTER_NUM_FRAMES
+            game_config.charecter_frame_timer = 0
 
         # Ensure current_frame is not None
-        current_frame = frames[direction][charecter_frame_index]
+        current_frame = frames[game_config.direction][game_config.charecter_frame_index]
         SCALE_FACTOR = 2.5
         scaled_width = current_frame.get_width() * SCALE_FACTOR
         scaled_height = current_frame.get_height() * SCALE_FACTOR
         scaled_frame = pygame.transform.scale(current_frame, (scaled_width, scaled_height))
-        screen.blit(scaled_frame, (x, y))
+        screen.blit(scaled_frame, (game_config.x, game_config.y))
 
         # Calculate distance between character and computer
         computer_center_x = 400 + 100  
         computer_center_y = 325 + 100  
-        character_center_x = x + (scaled_width // 2)
-        character_center_y = y + (scaled_height // 2)
+        character_center_x = game_config.x + (scaled_width // 2)
+        character_center_y = game_config.y + (scaled_height // 2)
 
         distance = ((computer_center_x - character_center_x) ** 2 + 
                     (computer_center_y - character_center_y) ** 2) ** 0.5
@@ -828,207 +844,249 @@ while running:
         if distance < INTERACT_DISTANCE:
             simple_text("Press E to interact", 520, 300)
         if keys[pygame.K_e] and distance < INTERACT_DISTANCE:
-            room = "computer"  
-            start = False
+            game_config.room = "computer"  
+            game_config.start = False
 
     elif game_config.room == "computer":
         screen.fill((0, 0, 255))
         if draw_button("Back", 20, 25, "azure4", "gray24", 100, 30, "white", 20):
             game_config.room = "room2"  # Go back to room2
 
-        if computer_page == 0:
-            draw_textbox("Welcome to the computer. Here you can add data to the data set.", 250, 100, True, font, 300, "White")
-            draw_textbox("You can also discard data from the data set.", 250, 250, True, font, 300, "White")
-            draw_textbox("Make sure the data is diverse and represents everyone.", 250, 400, True, font, 300, "White")
+        if game_config.computer_page == 0:
+            draw_textbox("Welcome to the computer. Here you can add data to the data set.", 250, 100, True, game_config.font, 300, "White")
+            draw_textbox("You can also discard data from the data set.", 250, 250, True, game_config.font, 300, "White")
+            draw_textbox("Make sure the data is diverse and represents everyone.", 250, 400, True, game_config.font, 300, "White")
             pygame.display.update()
             pygame.time.wait(10)
             pygame.time.wait(8000)
-            computer_page += 1
+            game_config.computer_page = 1
         
-        if computer_page == 1:
+        if game_config.computer_page == 1:
             screen.blit(game_config.people_images[0], (100, 100))
             if draw_button("Add to data set.", 50, 550, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
-                computer_page = 2
+                game_config.computer_page = 2
         
             if draw_button("Discard from data.", 450, 550, "brown4", "brown3", 300, 35, "white", 20):
-                room = "inncorrect"
+                game_config.room = "inncorrect"
 
 
-        if computer_page == 2:
+        if game_config.computer_page == 2:
             screen.blit(game_config.people_images[1], (100, 150))
             if draw_button("Add to data set.", 50, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
-                room = "inncorrect"
-
+                game_config.room = "inncorrect"
+                
             if draw_button("Discard from data.", 450, 75, "brown4", "brown3", 300, 35, "white", 20):
-                computer_page = 3
+                game_config.computer_page = 3
 
-        if computer_page == 3:
+
+        if game_config.computer_page == 3:
             screen.blit(game_config.people_images[2], (100, 100))
             if draw_button("Add to data set.", 50, 550, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
-                computer_page = 4
+                game_config.computer_page = 4
         
             if draw_button("Discard from data.", 450, 550, "brown4", "brown3", 300, 35, "white", 20):
-                room = "inncorrect"
+                game_config.room = "inncorrect"
 
-        if computer_page == 4:
+        if game_config.computer_page == 4:
+            screen.blit(game_config.people_images[3], (100, 150))
+            if draw_button("Add to data set.", 50, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
+                game_config.computer_page = 5
+
+            if draw_button("Discard from data.", 450, 75, "brown4", "brown3", 300, 35, "white", 20):
+                game_config.room = "inncorrect"
+
+        if game_config.computer_page == 5:
+            screen.blit(game_config.people_images[4], (100, 100))
+            if draw_button("Add to data set.", 50, 550, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
+                game_config.room = "inncorrect"
+        
+            if draw_button("Discard from data.", 450, 550, "brown4", "brown3", 300, 35, "white", 20):
+                game_config.computer_page = 6
+
+        if game_config.computer_page == 6:
             screen.blit(game_config.people_images[5], (100, 150))
             if draw_button("Add to data set.", 50, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
-                computer_page = 5
+                game_config.room = "inncorrect"
 
             if draw_button("Discard from data.", 450, 75, "brown4", "brown3", 300, 35, "white", 20):
-                room = "inncorrect"
+                game_config.computer_page = 7
 
-        if computer_page == 5:
+        if game_config.computer_page == 7:
             screen.blit(game_config.people_images[6], (100, 100))
             if draw_button("Add to data set.", 50, 550, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
-                room = "inncorrect"
-        
-            if draw_button("Discard from data.", 450, 550, "brown4", "brown3", 300, 35, "white", 20):
-                computer_page = 6
+                game_config.room = "inncorrect"
 
-        if computer_page == 6:
+            if draw_button("Discard from data.", 450, 550, "brown4", "brown3", 300, 35, "white", 20):
+                game_config.computer_page = 8
+        
+        if game_config.computer_page == 8:
             screen.blit(game_config.people_images[7], (100, 150))
             if draw_button("Add to data set.", 50, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
-                room = "inncorrect"
-
+                game_config.room = "inncorrect"
             if draw_button("Discard from data.", 450, 75, "brown4", "brown3", 300, 35, "white", 20):
-                computer_page = 7
-
-        if computer_page == 7:
-            screen.blit(game_config.people_images[8], (100, 100))
-            if draw_button("Add to data set.", 50, 550, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
-                room = "inncorrect"
-
-            if draw_button("Discard from data.", 450, 550, "brown4", "brown3", 300, 35, "white", 20):
-                computer_page = 8
+                game_config.computer_page = 9
         
-        if computer_page == 8:
-            screen.blit(image_eight, (100, 150))
-            if draw_button("Add to data set.", 50, 75, "aquamarine4", "aquamarine3", 300, 35, "white", 20):
-                room = "inncorrect"
-            if draw_button("Discard from data.", 450, 75, "brown4", "brown3", 300, 35, "white", 20):
-                computer_page = 9
-        
-        if computer_page == 9:
-            draw_textbox("Good job. You may exit the computer.", 250, 250, True, font, 300, "White")
-            room2_completed = True
+        if game_config.computer_page == 9:
+            draw_textbox("Good job. You may exit the computer.", 250, 250, True, game_config.font, 300, "White")
+            game_config.room2_completed = True
 
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_ESCAPE]:
-                room = "room2"  # Go back to room2 when escape is pressed
-                start = False
+                game_config.room = "room2"  # Go back to room2 when escape is pressed
+                game_config.start = False
 
     elif game_config.room == "inncorrect":
         screen.fill((0, 0, 0))
-        draw_textbox("Incorrect. Try again.", 200, 150, False, extraTitlefont, 500, "red")
-        draw_textbox("HINT: Remember age is also something that needs to be diversifyed.", 200, 151+extraTitlefont.get_height(), False, extraTitlefont, 400, "red")
+        draw_textbox("Incorrect. Try again.", 175, 150, False, game_config.extraTitlefont, 500, "red")
+        draw_textbox("HINT: Remember age is also something that needs to be diversifyed.", 175, 151+game_config.extraTitlefont.get_height()*2, False, game_config.font, 400, "red")
         pygame.display.update()
         pygame.time.wait(10)
-        pygame.time.wait(2000)
-        room = "room2"
-        start = False
+        pygame.time.wait(4000)
+        game_config.room = "room2"
+        game_config.start = False
     
     elif game_config.room == "room3":
-        scaled3 = pygame.transform.scale(room3, (SCREEN_WIDTH, SCREEN_HEIGHT))
-        mainbg = pygame.transform.scale(room3main, (SCREEN_WIDTH,SCREEN_HEIGHT))
-        scaledsuv = pygame.transform.scale(suv, (300,300) )
-        scaledtruck = pygame.transform.scale(truck, (800,800))
+        scaled3 = pygame.transform.scale(game_config.room3, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        mainbg = pygame.transform.scale(game_config.room3main, (SCREEN_WIDTH,SCREEN_HEIGHT))
+        scaledsuv = pygame.transform.scale(game_config.suv, (300,300) )
+        scaledtruck = pygame.transform.scale(game_config.truck, (800,800))
         screen.blit(mainbg, (0,0))
         screen.blit(scaledsuv, (100,220))
         screen.blit(scaledtruck, (180,-30))
-        screen.blit(motor,(220,220))
-        screen.blit(box, (600,200))
-        screen.blit(box, (550,250))
+        screen.blit(game_config.motor,(220,220))
+        screen.blit(game_config.box, (600,200))
+        screen.blit(game_config.box, (550,250))
         screen.blit(scaled3, (0,0))
         simple_text("Make your choice:", 300, 450)
         if draw_button("SUV", 75, 500, "crimson", "darkred", 200, 60, "white", 36):
-            room = "end1"  # Go back to room2 when escape is pressed
-            start = True
+            game_config.room = "end1"  # Go back to room2 when escape is pressed
+            game_config.start = True
         if draw_button("MOTORBIKE", 300, 500, "darkgoldenrod1", "darkgoldenrod3", 200, 60, "white", 34):
-            room = "end2"  # Go back to room2 when escape is pressed
-            start = True
+            game_config.room = "end2"  # Go back to room2 when escape is pressed
+            game_config.start = True
         if draw_button("TRUCK", 525, 500, "blue3", "blue4", 200, 60, "white", 36):
-            room = "end3"  # Go back to room2 when escape is pressed
-            start = True
+            game_config.room = "end3"  # Go back to room2 when escape is pressed
+            game_config.start = True
 
     if game_config.room == "end1":
-        end_time += clock.get_time()
-        if end_time < 4000:
+        game_config.end_time += clock.get_time()
+        if game_config.end_time < 4000:
             screen.fill((0, 0, 0))
-        elif end_time > 4001:
-            screen.blit(end_screen_background, (0, 0))
+        elif game_config.end_time > 4001:
+            screen.blit(game_config.end_screen_background, (0, 0))
 
-        if end_time < 4000:
-            draw_textbox("You crashed.", 255, 250, False, extraTitlefont, 400, "red")
-        elif end_time > 4001 and end_time < 10000:
-            draw_textbox("You chose to play the middle ground by bumping into the SUV with a high-safety rating. This decision saved lives but raised questions about fairness.", 210, 100)
-            screen.blit(nova, (0, 50))
-        elif end_time > 10001 and end_time < 19000:
-            draw_textbox("Ethics in AI is not about perfect answers—it’s about thoughtful questions. You’ve done well to navigate this challenge.", 210, 100)
-            screen.blit(nova, (0, 50))
-        elif end_time > 19001 and end_time < 26000:
-            draw_textbox("Congratulations. You’ve completed the escape room and learned the essentials of AI: its power, its limitations, and its ethical complexities. Use this knowledge wisely to shape the future.", 125, 300)
-            screen.blit(nova, (520-nova.get_rect().width, 55))
-        elif end_time > 26001:
-            a = 0
-    
-    if game_config.room == "end2":
-        end_time += clock.get_time()
-        if end_time < 4000:
-            screen.fill((0, 0, 0))
-        elif end_time > 4001:
-            screen.blit(end_screen_background, (0, 0))
-
-        if end_time < 4000:
-            draw_textbox("You crashed.", 255, 250, False, extraTitlefont, 400, "red")
-        elif end_time > 4001 and end_time < 10000:
-            draw_textbox("You chose to prioritize your own personal safety, even though it meant sacrificing others. This decision saved lives but raised questions about fairness.", 210, 100)
-            screen.blit(nova, (0, 50))
-        elif end_time > 10001 and end_time < 19000:
-            draw_textbox("Ethics in AI is not about perfect answers—it’s about thoughtful questions. You’ve done well to navigate this challenge.", 210, 100)
-            screen.blit(nova, (0, 50))
-        elif end_time > 19001 and end_time < 26000:
-            draw_textbox("Congratulations. You’ve completed the escape room and learned the essentials of AI: its power, its limitations, and its ethical complexities. Use this knowledge wisely to shape the future.", 125, 300)
-            screen.blit(nova, (520-nova.get_rect().width, 55))
-        elif end_time > 26001:
-            a = 0
-            
-    if game_config.room == "end3":
-        end_time += clock.get_time()
-        if end_time < 4000:
-            screen.fill((0, 0, 0))
-        elif end_time > 4001:
-            screen.blit(end_screen_background, (0, 0))
-        
         simple_text("Space to skip", 20, 20, "black", "white")
 
-        if end_time < 4000:
-            draw_textbox("You crashed.", 255, 250, False, extraTitlefont, 400, "red")
-        elif end_time > 4001 and end_time < 10000:
-            draw_textbox("You chose to prioritize minimizing harm, even though it can end your life. This decision saved lives but raised questions about fairness.", 210, 100)
-            screen.blit(nova, (0, 50))
-        elif end_time > 10001 and end_time < 19000:
+        if game_config.end_time < 4000:
+            draw_textbox("You crashed.", 255, 250, False, game_config.extraTitlefont, 400, "red")
+        elif game_config.end_time > 4001 and game_config.end_time < 10000:
+            draw_textbox("You chose to play the middle ground by bumping into the SUV with a high-safety rating. This decision saved lives but raised questions about fairness.", 210, 100)
+            screen.blit(game_config.nova, (0, 50))
+        elif game_config.end_time > 10001 and game_config.end_time < 19000:
             draw_textbox("Ethics in AI is not about perfect answers—it’s about thoughtful questions. You’ve done well to navigate this challenge.", 210, 100)
-            screen.blit(nova, (0, 50))
-        elif end_time > 19001 and end_time < 26000:
+            screen.blit(game_config.nova, (0, 50))
+        elif game_config.end_time > 19001 and game_config.end_time < 26000:
             draw_textbox("Congratulations. You’ve completed the escape room and learned the essentials of AI: its power, its limitations, and its ethical complexities. Use this knowledge wisely to shape the future.", 125, 300)
-            screen.blit(nova, (520-nova.get_rect().width, 55))
-        elif end_time > 26001:
+            screen.blit(game_config.nova, (520-game_config.nova.get_rect().width, 55))
+        elif game_config.end_time > 26001:
             if draw_button("Main Menu", 275, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
-                room = "start"  # Proceed to the start room
-                start = True
+                game_config.room = "start"  # Proceed to the start room
+                game_config.start = True
+                game_config = GameConfig()
                 pygame.display.update()
                 pygame.time.wait(100)
             if draw_button("Play Again", 275, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
-                room = "cutscene"  # Go to the cutscene
-                start = True
+                game_config.room = "cutscene"  # Go to the cutscene
+                game_config.start = True
+                game_config = GameConfig()
             if draw_button("Works Cited", 275, 390, pygame.Color("lightgreen"), pygame.Color("green"), 250, 50):
-                room = "work cited"  # Go to the works cited
-                start = True
+                game_config.room = "work cited"  # Go to the works cited
+                game_config.start = True
+                game_config = GameConfig()
+        
+        if pygame.event.get(pygame.KEYDOWN):
+            if pygame.key.get_pressed()[pygame.K_SPACE]:
+                game_config.end_time = 27000
+    
+    if game_config.room == "end2":
+        game_config.end_time += clock.get_time()
+        if game_config.end_time < 4000:
+            screen.fill((0, 0, 0))
+        elif game_config.end_time > 4001:
+            screen.blit(game_config.end_screen_background, (0, 0))
+
+        simple_text("Space to skip", 20, 20, "black", "white")
+
+        if game_config.end_time < 4000:
+            draw_textbox("You crashed.", 255, 250, False, game_config.extraTitlefont, 400, "red")
+        elif game_config.end_time > 4001 and game_config.end_time < 10000:
+            draw_textbox("You chose to prioritize your own personal safety, even though it meant sacrificing others. This decision saved lives but raised questions about fairness.", 210, 100)
+            screen.blit(game_config.nova, (0, 50))
+        elif game_config.end_time > 10001 and game_config.end_time < 19000:
+            draw_textbox("Ethics in AI is not about perfect answers—it’s about thoughtful questions. You’ve done well to navigate this challenge.", 210, 100)
+            screen.blit(game_config.nova, (0, 50))
+        elif game_config.end_time > 19001 and game_config.end_time < 26000:
+            draw_textbox("Congratulations. You’ve completed the escape room and learned the essentials of AI: its power, its limitations, and its ethical complexities. Use this knowledge wisely to shape the future.", 125, 300)
+            screen.blit(game_config.nova, (520-game_config.nova.get_rect().width, 55))
+        elif game_config.end_time > 26001:
+            if draw_button("Main Menu", 275, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
+                game_config.room = "start"  # Proceed to the start room
+                game_config.start = True
+                game_config = GameConfig()
+                pygame.display.update()
+                pygame.time.wait(100)
+            if draw_button("Play Again", 275, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
+                game_config.room = "cutscene"  # Go to the cutscene
+                game_config.start = True
+                game_config = GameConfig()
+            if draw_button("Works Cited", 275, 390, pygame.Color("lightgreen"), pygame.Color("green"), 250, 50):
+                game_config.room = "work cited"  # Go to the works cited
+                game_config.start = True
+                game_config = GameConfig()
 
         if pygame.event.get(pygame.KEYDOWN):
             if pygame.key.get_pressed()[pygame.K_SPACE]:
-                end_time = 27000
+                game_config.end_time = 27000
+            
+    if game_config.room == "end3":
+        game_config.end_time += clock.get_time()
+        if game_config.end_time < 4000:
+            game_config.screen.fill((0, 0, 0))
+        elif game_config.end_time > 4001:
+            screen.blit(game_config.end_screen_background, (0, 0))
+        
+        simple_text("Space to skip", 20, 20, "black", "white")
+
+        if game_config.end_time < 4000:
+            draw_textbox("You crashed.", 255, 250, False, game_config.extraTitlefont, 400, "red")
+        elif game_config.end_time > 4001 and game_config.end_time < 10000:
+            draw_textbox("You chose to prioritize minimizing harm, even though it can end your life. This decision saved lives but raised questions about fairness.", 210, 100)
+            screen.blit(game_config.nova, (0, 50))
+        elif game_config.end_time > 10001 and game_config.end_time < 19000:
+            draw_textbox("Ethics in AI is not about perfect answers—it’s about thoughtful questions. You’ve done well to navigate this challenge.", 210, 100)
+            screen.blit(game_config.nova, (0, 50))
+        elif game_config.end_time > 19001 and game_config.end_time < 26000:
+            draw_textbox("Congratulations. You’ve completed the escape room and learned the essentials of AI: its power, its limitations, and its ethical complexities. Use this knowledge wisely to shape the future.", 125, 300)
+            screen.blit(game_config.nova, (520-game_config.nova.get_rect().width, 55))
+        elif game_config.end_time > 26001:
+            if draw_button("Main Menu", 275, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
+                game_config.room = "start"  # Proceed to the start room
+                game_config.start = True
+                game_config = GameConfig()
+                pygame.display.update()
+                pygame.time.wait(100)
+            if draw_button("Play Again", 275, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
+                game_config.room = "cutscene"  # Go to the cutscene
+                game_config.start = True
+                game_config = GameConfig()
+            if draw_button("Works Cited", 275, 390, pygame.Color("lightgreen"), pygame.Color("green"), 250, 50):
+                game_config.room = "work cited"  # Go to the works cited
+                game_config.start = True
+                game_config = GameConfig()
+
+        if pygame.event.get(pygame.KEYDOWN):
+            if pygame.key.get_pressed()[pygame.K_SPACE]:
+                game_config.end_time = 27000
         
     for event in pygame.event.get():
         if event.type == QUIT:
