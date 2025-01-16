@@ -210,8 +210,8 @@ def draw_button(button_text, x, y, color, hover_color, width, height=50, textCol
 
     # Check for hover and click
     if button_rect.collidepoint(mouse_pos):
-        pygame.draw.rect(screen, hover_color, button_rect)
-        pygame.draw.rect(screen, pygame.Color("White"), button_rect, 3)
+        pygame.draw.rect(screen, hover_color, button_rect) # Changes colour
+        pygame.draw.rect(screen, pygame.Color("White"), button_rect, 3) # Adds an outline
         if pygame.mouse.get_pressed()[0]:  # Left-click
             return True  # Button clicked
     else:
