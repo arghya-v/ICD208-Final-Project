@@ -43,6 +43,10 @@ class GameConfig:
         # Load soundeffects
         self.dopen = pygame.mixer.Sound("assets/sfx/open-door-sound.mp3")
         self.keyget = pygame.mixer.Sound("assets/sfx/sfx-room_transition-key_get.mp3")
+        self.pageturn = pygame.mixer.Sound("assets/sfx/sfx-room_one-one_page_turn.mp3")
+        self.buttonclicked = pygame.mixer.Sound("assets/sfx/sfx-button_clicked.mp3")
+        self.cardrive = pygame.mixer.Sound("assets/sfx/sfx-room_three-engine.mp3")
+        self.carcrash = pygame.mixer.Sound("assets/sfx/sfx-room_three-screeching.mp3")
 
         # Load character spritesheet
         self.character = 1
@@ -213,6 +217,7 @@ def draw_button(button_text, x, y, color, hover_color, width, height=50, textCol
         pygame.draw.rect(screen, hover_color, button_rect) # Changes colour
         pygame.draw.rect(screen, pygame.Color("White"), button_rect, 3) # Adds an outline
         if pygame.mouse.get_pressed()[0]:  # Left-click
+            pygame.mixer.Sound.play(game_config.buttonclicked)
             return True  # Button clicked
     else:
         pygame.draw.rect(screen, color, button_rect)
@@ -247,7 +252,7 @@ def room_start():
         fade(800,600)
 
     if pygame.mixer.music.get_busy():
-        pygame.mixer.music.fadeout(200) # set to 1000ms after we have fade for cleaner fade_out
+        pygame.mixer.music.fadeout(1000) # set to 1000ms after we have fade for cleaner fade_out
     if not pygame.mixer.get_busy():
         # Determine the music to load based on the room
         music_files = {
@@ -268,7 +273,7 @@ def room_start():
             new_music = music_files[game_config.room]
             pygame.mixer.music.load(new_music)
             pygame.mixer.music.set_volume(10)
-            pygame.mixer.music.play(-1, 0.0, 4000) # set to 6000ms for cleaner fade after we have fade to black set up
+            pygame.mixer.music.play(-1, 0.0, 5000) # set to 5000ms for cleaner fade after we have fade to black set up
         
         game_config.start = False
 
@@ -637,7 +642,7 @@ while running:
                     game_config.start = False
                     game_config.book_page = 1
         
-    if game_config.room == "book":
+    elif game_config.room == "book":
         screen.blit(game_config.room1_background, (0, 0))
         screen.blit(game_config.book_inside, (0, 0))
 
@@ -653,10 +658,14 @@ while running:
             game_config.book_page += 1
             if game_config.book_page > 1:
                 game_config.book_page = 1
+            else:
+                pygame.mixer.Sound.play(game_config.pageturn)
         if draw_button("Previous Page", 100, 530, pygame.Color("gray67"), pygame.Color("gray50"), 100, 20, "white", 12):
             game_config.book_page -= 1
             if game_config.book_page < 0:
                 game_config.book_page = 0
+            else:
+                pygame.mixer.Sound.play(game_config.pageturn)
 
         if game_config.book_page == 0:
             book_text_surface = game_config.Titlefont.render("AI 101:", True, pygame.Color("black"))
@@ -769,10 +778,14 @@ while running:
                 game_config.book_page -= 1
                 if game_config.book_page < 0:
                     game_config.book_page = 0
+                else:
+                    pygame.mixer.Sound.play(game_config.pageturn)
             elif pygame.key.get_pressed()[pygame.K_e]:
                 game_config.book_page += 1
                 if game_config.book_page > 1:
                     game_config.book_page = 1
+                else: 
+                    pygame.mixer.Sound.play(game_config.pageturn)
         
     elif game_config.room == "room2":
         scaledrm2 = pygame.transform.scale(game_config.room2_background, (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -920,7 +933,7 @@ while running:
         if distance < INTERACT_DISTANCE:
             simple_text("Press E to interact", 520, 300)
         if keys[pygame.K_e] and distance < INTERACT_DISTANCE:
-            game_config.room = "computer"  
+            game_config.room = "computer"
             game_config.start = False
 
     elif game_config.room == "computer":
@@ -1039,6 +1052,7 @@ while running:
         screen.blit(game_config.box, (600,200))
         screen.blit(game_config.box, (550,250))
         screen.blit(scaled3, (0,0))
+        pygame.mixer.Sound.play(game_config.cardrive)
 
         game_config.room3time += clock.get_time()
         if game_config.room3time < 17000:
@@ -1051,7 +1065,7 @@ while running:
             scaled_width = current_frame.get_width() * SCALE_FACTOR
             scaled_height = current_frame.get_height() * SCALE_FACTOR
             scaled_frame = pygame.transform.scale(current_frame, (scaled_width, scaled_height))
-            screen.blit(scaled_frame, (560, -55))
+            screen.blit(scaled_frame, (560, -30))
         elif game_config.room3time > 20001 and game_config.room3time < 27000:
             draw_textbox("Ethical dilemmas like this are why programming AI is so challenging. Consider the outcomes and make your decision.", 210, 100)
             screen.blit(game_config.nova, (0, 50))
@@ -1067,7 +1081,7 @@ while running:
             game_config.room = "end3"  # Go back to room2 when escape is pressed
             game_config.start = True
 
-    if game_config.room == "end1":
+    elif game_config.room == "end1":
         game_config.end_time += clock.get_time()
         if game_config.end_time < 4000:
             screen.fill((0, 0, 0))
@@ -1080,6 +1094,7 @@ while running:
         simple_text("Space to skip", 20, 20, "black", "white")
 
         if game_config.end_time < 4000:
+            pygame.mixer.Sound.play(game_config.carcrash)
             draw_textbox("You crashed.", 255, 250, False, game_config.extraTitlefont, 400, "red")
         elif game_config.end_time > 4001 and game_config.end_time < 13000:
             draw_textbox("You chose to play the middle ground by bumping into the SUV with a high-safety rating. This decision saved lives but raised questions about fairness.", 210, 100)
@@ -1094,15 +1109,21 @@ while running:
             if draw_button("Main Menu", 275, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
                 game_config.room = "start"  # Proceed to the start room
                 game_config.start = True
+                temp1 = game_config.character
                 game_config = GameConfig()
+                game_config.character = temp1
                 pygame.event.clear(pygame.MOUSEBUTTONDOWN)
             if draw_button("Play Again", 275, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
+                temp1 = game_config.character
                 game_config = GameConfig()
+                game_config.character = temp1
                 game_config.room = "cutscene"  # Go to the cutscene
                 game_config.start = True
                 pygame.event.clear(pygame.MOUSEBUTTONDOWN)
             if draw_button("Works Cited", 275, 390, pygame.Color("lightgreen"), pygame.Color("green"), 250, 50):
+                temp1 = game_config.character
                 game_config = GameConfig()
+                game_config.character = temp1
                 game_config.room = "work cited"  # Go to the works cited
                 game_config.start = True
                 pygame.event.clear(pygame.MOUSEBUTTONDOWN)
@@ -1111,7 +1132,7 @@ while running:
             if pygame.key.get_pressed()[pygame.K_SPACE]:
                 game_config.end_time = 29000
     
-    if game_config.room == "end2":
+    elif game_config.room == "end2":
         game_config.end_time += clock.get_time()
         if game_config.end_time < 4000:
             screen.fill((0, 0, 0))
@@ -1124,6 +1145,7 @@ while running:
         simple_text("Space to skip", 20, 20, "black", "white")
 
         if game_config.end_time < 4000:
+            pygame.mixer.Sound.play(game_config.carcrash)
             draw_textbox("You crashed.", 255, 250, False, game_config.extraTitlefont, 400, "red")
         elif game_config.end_time > 4001 and game_config.end_time < 13000:
             draw_textbox("You chose to prioritize your own personal safety, even though it meant sacrificing others. This decision saved lives but raised questions about fairness.", 210, 100)
@@ -1138,15 +1160,21 @@ while running:
             if draw_button("Main Menu", 275, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
                 game_config.room = "start"  # Proceed to the start room
                 game_config.start = True
+                temp1 = game_config.character
                 game_config = GameConfig()
+                game_config.character = temp1
                 pygame.event.clear(pygame.MOUSEBUTTONDOWN)
             if draw_button("Play Again", 275, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
+                temp1 = game_config.character
                 game_config = GameConfig()
+                game_config.character = temp1
                 game_config.room = "cutscene"  # Go to the cutscene
                 game_config.start = True
                 pygame.event.clear(pygame.MOUSEBUTTONDOWN)
             if draw_button("Works Cited", 275, 390, pygame.Color("lightgreen"), pygame.Color("green"), 250, 50):
+                temp1 = game_config.character
                 game_config = GameConfig()
+                game_config.character = temp1
                 game_config.room = "work cited"  # Go to the works cited
                 game_config.start = True
                 pygame.event.clear(pygame.MOUSEBUTTONDOWN)
@@ -1155,10 +1183,11 @@ while running:
             if pygame.key.get_pressed()[pygame.K_SPACE]:
                 game_config.end_time = 29000
             
-    if game_config.room == "end3":
+    elif game_config.room == "end3":
         game_config.end_time += clock.get_time()
         if game_config.end_time < 4000:
             game_config.screen.fill((0, 0, 0))
+            pygame.mixer.Sound.play(game_config.carcrash, 0, 4001)
         elif game_config.end_time > 4001:
             screen.blit(game_config.end_screen_background, (0, 0))
         
@@ -1168,6 +1197,7 @@ while running:
         simple_text("Space to skip", 20, 20, "black", "white")
 
         if game_config.end_time < 4000:
+            pygame.mixer.Sound.play(game_config.carcrash)
             draw_textbox("You crashed.", 255, 250, False, game_config.extraTitlefont, 400, "red")
         elif game_config.end_time > 4001 and game_config.end_time < 13000:
             draw_textbox("You chose to prioritize minimizing harm, even though it can end your life. This decision saved lives but raised questions about fairness.", 210, 100)
@@ -1182,15 +1212,21 @@ while running:
             if draw_button("Main Menu", 275, 250, pygame.Color("bisque4"), pygame.Color("chocolate4"), 250, 50):
                 game_config.room = "start"  # Proceed to the start room
                 game_config.start = True
+                temp1 = game_config.character
                 game_config = GameConfig()
+                game_config.character = temp1
                 pygame.event.clear(pygame.MOUSEBUTTONDOWN)
             if draw_button("Play Again", 275, 320, pygame.Color("lightblue"), pygame.Color("dodgerblue"), 250, 50):
+                temp1 = game_config.character
                 game_config = GameConfig()
+                game_config.character = temp1
                 game_config.room = "cutscene"  # Go to the cutscene
                 game_config.start = True
                 pygame.event.clear(pygame.MOUSEBUTTONDOWN)
             if draw_button("Works Cited", 275, 390, pygame.Color("lightgreen"), pygame.Color("green"), 250, 50):
+                temp1 = game_config.character
                 game_config = GameConfig()
+                game_config.character = temp1
                 game_config.room = "work cited"  # Go to the works cited
                 game_config.start = True
                 pygame.event.clear(pygame.MOUSEBUTTONDOWN)
