@@ -682,7 +682,7 @@ while running:
             book_text_rect = book_text_surface.get_rect(centerx=800-235, centery=50+game_config.font.get_height())
             screen.blit(book_text_surface, book_text_rect)
 
-            book_bodytext = ["What is AI?",
+            book_bodytext = ["What is AI?", " ",
                                 "Artificial Intelligence (AI) is like giving computers the ability to think and solve problems, just like humans. AI helps machines recognize patterns, make decisions, and even talk to us, like when you ask a virtual assistant for help. To make AI work, scientists use huge amounts of data and special computer tools like GPUs (graphics processing units) that process information really quickly. AI can learn new things by practicing over and over, just like we do when we study for a test!"]
             linecount = 0
             for line in book_bodytext:
@@ -1056,7 +1056,7 @@ while running:
 
         game_config.room3time += clock.get_time()
         if game_config.room3time < 17000:
-            draw_textbox("You are now programming a self-driving car. A crash is imminent. You must decide how the car reacts: swerve left, hit the SUV; swerve right, hit the obect; or go straight and hit the motorcycle. Choose wisely.", 210, 100)
+            draw_textbox("You are now programming a self-driving car. A crash is imminent. You must decide how the car reacts: swerve left, hit the SUV; swerve right, hit the truck; or go straight and hit the motorcycle. Choose wisely.", 210, 100)
             screen.blit(game_config.nova, (0, 55))
         elif game_config.room3time > 17001 and game_config.room3time < 21000:
             draw_textbox("How am I supposed to decide this?", 20, 100)
@@ -1065,7 +1065,7 @@ while running:
             scaled_width = current_frame.get_width() * SCALE_FACTOR
             scaled_height = current_frame.get_height() * SCALE_FACTOR
             scaled_frame = pygame.transform.scale(current_frame, (scaled_width, scaled_height))
-            screen.blit(scaled_frame, (560, -30))
+            screen.blit(scaled_frame, (560, -80))
         elif game_config.room3time > 20001 and game_config.room3time < 27000:
             draw_textbox("Ethical dilemmas like this are why programming AI is so challenging. Consider the outcomes and make your decision.", 210, 100)
             screen.blit(game_config.nova, (0, 50))
